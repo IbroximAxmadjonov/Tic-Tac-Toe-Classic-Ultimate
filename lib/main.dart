@@ -4,13 +4,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:tic_tac_toe/core/utils/bloc/theme/theme_bloc.dart';
-import 'package:tic_tac_toe/core/utils/theme/app_theme.dart';
 
-import 'core/domain/routing/app_router.dart';
-import 'core/utils/bloc_providers.dart';
+import 'domain/routing/app_router.dart';
+import 'presentation/manager/theme_bloc/theme_bloc.dart';
+import 'service_locator.dart' as di;
 
-void main() async {
+import 'utils/bloc_providers.dart';
+import 'utils/theme/app_theme.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Initialize HydratedBloc storage
   HydratedBloc.storage = await HydratedStorage.build(
@@ -18,6 +20,8 @@ void main() async {
         ? HydratedStorageDirectory.web
         : HydratedStorageDirectory((await getApplicationDocumentsDirectory()).path),
   );
+
+  await di.initDependencies();
   runApp(const Application());
 }
 
@@ -28,7 +32,6 @@ class Application extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: AppBlocProviders.items,
-      // providers: blocProviders,
       child: BlocBuilder<ThemeBloc, ThemeMode>(
         builder: (context, themeBloc) {
           return ScreenUtilInit(
