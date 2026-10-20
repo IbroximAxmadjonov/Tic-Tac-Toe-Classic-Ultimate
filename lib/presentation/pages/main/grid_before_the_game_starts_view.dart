@@ -24,6 +24,8 @@ class _GridBeforeTheGameStartsViewState extends State<GridBeforeTheGameStartsVie
   SaveGame _selectedSaveGame = SaveGame.no;
 
   final Set<PlayerEntity> _selectedPlayers = {};
+  PlayerEntity? _player1Selected;
+  PlayerEntity? _player2Selected;
   late final TextEditingController _player1Controller;
   late final TextEditingController _player2Controller;
 
@@ -35,14 +37,50 @@ class _GridBeforeTheGameStartsViewState extends State<GridBeforeTheGameStartsVie
     super.initState();
     _player1Controller = TextEditingController();
     _player2Controller = TextEditingController();
+    _player1Controller.addListener(_onControllersChanged);
+    _player2Controller.addListener(_onControllersChanged);
 
     // // --- BLOC INTEGRATION (TODO: connect with Bloc) ---
     // // Загрузка списка игроков при инициализации:
     // // context.read<PlayerBloc>().add(LoadPlayersEvent());
   }
 
+  void _onControllersChanged() {
+    setState(() {
+      _syncSelectedPlayers();
+    });
+  }
+
+  void _syncSelectedPlayers() {
+    if (_player1Controller.text.trim().isEmpty) {
+      _player1Selected = null;
+    } else if (_player1Selected != null &&
+        _player1Selected!.name.trim().toLowerCase() !=
+            _player1Controller.text.trim().toLowerCase()) {
+      _player1Selected = null;
+    }
+
+    if (_player2Controller.text.trim().isEmpty) {
+      _player2Selected = null;
+    } else if (_player2Selected != null &&
+        _player2Selected!.name.trim().toLowerCase() !=
+            _player2Controller.text.trim().toLowerCase()) {
+      _player2Selected = null;
+    }
+
+    _selectedPlayers.clear();
+    if (_player1Selected != null) {
+      _selectedPlayers.add(_player1Selected!);
+    }
+    if (_player2Selected != null) {
+      _selectedPlayers.add(_player2Selected!);
+    }
+  }
+
   @override
   void dispose() {
+    _player1Controller.removeListener(_onControllersChanged);
+    _player2Controller.removeListener(_onControllersChanged);
     _player1Controller.dispose();
     _player2Controller.dispose();
     super.dispose();
@@ -117,25 +155,44 @@ class _GridBeforeTheGameStartsViewState extends State<GridBeforeTheGameStartsVie
                       player2Controller: _player2Controller,
                       onPlayerSelected: (player) {
                         setState(() {
-
-                          if (_player1Controller.text.isEmpty) {
+                          if (_player1Controller.text.trim().isEmpty) {
                             _player1Controller.text = player.name;
-                          }
-                          if (_player2Controller.text.isEmpty) {
+                            _player1Selected = player;
+                          } else if (_player2Controller.text.trim().isEmpty) {
                             _player2Controller.text = player.name;
+                            _player2Selected = player;
                           }
+                          _syncSelectedPlayers();
                         });
 
                         // // --- BLOC INTEGRATION (TODO: connect with Bloc) ---
                         // // context.read<GridBlock>().add(SelectPlayerEvent(player));
                       },
                       onPlayer1NameChanged: (name) {
+                        setState(() {
+                          _syncSelectedPlayers();
+                        });
                         // // --- BLOC INTEGRATION (TODO: connect with Bloc) ---
                         // // context.read<GridBlock>().add(UpdatePlayer1NameEvent(name));
                       },
                       onPlayer2NameChanged: (name) {
+                        setState(() {
+                          _syncSelectedPlayers();
+                        });
                         // // --- BLOC INTEGRATION (TODO: connect with Bloc) ---
                         // // context.read<GridBlock>().add(UpdatePlayer2NameEvent(name));
+                      },
+                      onClearPlayer1: () {
+                        setState(() {
+                          _player1Selected = null;
+                          _syncSelectedPlayers();
+                        });
+                      },
+                      onClearPlayer2: () {
+                        setState(() {
+                          _player2Selected = null;
+                          _syncSelectedPlayers();
+                        });
                       },
                     ),
                   ),
