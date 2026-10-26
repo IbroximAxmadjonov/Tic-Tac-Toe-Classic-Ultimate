@@ -2,56 +2,51 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:tic_tac_toe/domain/constants/test_elements.dart';
+import 'package:tic_tac_toe/presentation/manager/statics_provider/statics_provider.dart';
+import 'package:tic_tac_toe/utils/errors/app_debug_print.dart';
 
 import '../../../domain/constants/enums.dart';
-import '../../../domain/entities/grid_items_entity.dart';
 import '../../../domain/entities/game_state_entity.dart';
+import '../../../domain/entities/grid_items_entity.dart';
 import '../../../domain/entities/player_entity.dart';
 import '../../../domain/handlers/check_grid_winner_handler.dart';
 import '../../../domain/repositories/main_repository.dart';
+import '../../../service_locator.dart';
 
 part 'main_event.dart';
-
 part 'main_state.dart';
 
-class MainBloc extends HydratedBloc<MainEvent, MainState> {
+class MainBloc extends Bloc<MainEvent, MainState> {
   final CheckGridWinnerHandler _checkGridWinner = CheckGridWinnerHandler();
   final MainRepository mainRepository;
 
   MainBloc({required this.mainRepository})
     : super(
         MainInitialState(
-          players: [
-            PlayerEntity(
-              id: 0,
-              name: 'Player 1',
-              games: 0,
-              wins: 0,
-              losses: 0,
-              draws: 0,
-            ),
-            PlayerEntity(
-              id: 1,
-              name: 'Player 2',
-              games: 0,
-              wins: 0,
-              losses: 0,
-              draws: 0,
-            ),
-          ],
-          gameMode: GameMode.classic,
-          selectedSize: 4,
-          saveGame: SaveGame.no,
+          players: testForMainInitialState.players,
+          gameMode: testForMainInitialState.gameMode,
+          selectedSize: testForMainInitialState.selectedSize,
+          saveGame: testForMainInitialState.saveGame,
         ),
       ) {
     on<LoadMainEvent>(_onLoadMainEvent);
+    on<ChangeMainInitialElementsMainEvent>(_onChangeMainInitialElementsMainEvent);
+    on<AddPlayerToMainEvent>(_onAddPlayerToMainEvent);
+    on<CreatePlayerMainEvent>(_onCreatePlayerMainEvent);
+    on<ClearPlayerMainEvent>(_onClearPlayerMainEvent);
     on<StartGameMainEvent>(_onStartGameMainEvent);
     on<TappedOnMainEvent>(_onTappedOnMainEvent);
     on<RestartGameMainEvent>(_onRestartGameMainEvent);
-    on<ResetToMenuMainEvent>(_onResetToMenuMainEvent);
-    on<SaveGameMainEvent>(_onSaveGameMainEvent);
+    on<ExitGameMainEvent>(_onExitGameMainEvent);
+    on<FinishAndRestartGameMainEvent>(_onFinishAndRestartGameMainEvent);
+    on<FinishAndExitGameMainEvent>(_onFinishAndExitGameMainEvent);
+    // on<SaveGameMainEvent>(_onSaveGameMainEvent);
   }
 
+  /// Before MainInitialState:
+  // Задача _onLoadMainEvent — получить список игроков из БД
+  // перед запуском приложения
   FutureOr<void> _onLoadMainEvent(
     LoadMainEvent event,
     Emitter<MainState> emit,
@@ -59,9 +54,96 @@ class MainBloc extends HydratedBloc<MainEvent, MainState> {
     if (state is! MainInitialState) return;
     final currentState = state as MainInitialState;
     final playerList = await mainRepository.getPlayersByRanking();
+    sl<StaticsProvider>().getAllPlayers(playerList);
     emit(currentState.copyWith(players: playerList));
   }
 
+  /// In MainInitialState:
+  // Задача _onChangeMainInitialElementsMainEvent — изменить состояние
+  // игры в зависимости от выбранных параметров игры
+  FutureOr<void> _onChangeMainInitialElementsMainEvent(
+    ChangeMainInitialElementsMainEvent event,
+    Emitter<MainState> emit,
+  ) async {
+    if (state is! MainInitialState) return;
+    final currentState = state as MainInitialState;
+    final object = event.object;
+    if (object is GameMode) {
+      emit(currentState.copyWith(gameMode: object));
+      appDebugPrint(
+        e: currentState.toString(),
+        stackTrace: StackTrace.fromString(''),
+        from: '_onChangeMainInitialElementsMainEvent',
+      );
+    } else if (object is int) {
+      emit(currentState.copyWith(selectedSize: object));
+      appDebugPrint(
+        e: currentState.toString(),
+        stackTrace: StackTrace.fromString(''),
+        from: '_onChangeMainInitialElementsMainEvent',
+      );
+    } else if (object is SaveGame) {
+      emit(currentState.copyWith(saveGame: object));
+      appDebugPrint(
+        e: currentState.toString(),
+        stackTrace: StackTrace.fromString(''),
+        from: '_onChangeMainInitialElementsMainEvent',
+      );
+    } else {
+      return;
+    }
+  }
+
+  // Задача _onAddPlayerToMainEvent — добавить игрока в игру
+  FutureOr<void> _onAddPlayerToMainEvent(
+    AddPlayerToMainEvent event,
+    Emitter<MainState> emit,
+  ) async {
+    if (state is! MainInitialState) return;
+    final currentState = state as MainInitialState;
+    event.playerSymbol == PlayerSymbol.x
+        ? emit(currentState.copyWith(selectedPlayerX: event.player))
+        : emit(currentState.copyWith(selectedPlayerO: event.player));
+    appDebugPrint(
+      e: currentState.toString(),
+      stackTrace: StackTrace.fromString(''),
+      from: '_onAddPlayerToMainEvent',
+    );
+  }
+
+  // Задача _onCreatePlayerMainEvent — создать игрока в БД
+  FutureOr<void> _onCreatePlayerMainEvent(
+    CreatePlayerMainEvent event,
+    Emitter<MainState> emit,
+  ) async {
+    if (state is! MainInitialState) return;
+    appDebugPrint(
+      e: 'Create Player',
+      stackTrace: StackTrace.fromString(''),
+      from: 'Main Bloc',
+    );
+    final currentState = state as MainInitialState;
+    // Сохраняем игрока в БД.
+    await mainRepository.createPlayer(event.name);
+    // Перезагружаем обновлённый список из БД.
+    final updatedPlayers = await mainRepository.getPlayersByRanking();
+    emit(currentState.copyWith(players: updatedPlayers));
+    sl<StaticsProvider>().getAllPlayers(updatedPlayers);
+  }
+
+  // Задача _onClearPlayerMainEvent — очистить выбранного игрока
+  FutureOr<void> _onClearPlayerMainEvent(
+    ClearPlayerMainEvent event,
+    Emitter<MainState> emit,
+  ) async {
+    if (state is! MainInitialState) return;
+    final currentState = state as MainInitialState;
+    event.playerSymbol == PlayerSymbol.x
+        ? emit(currentState.copyWith(clearPlayerX: true))
+        : emit(currentState.copyWith(clearPlayerO: true));
+  }
+
+  // Задача _onStartGameMainEvent — собрать данные и начать игру
   FutureOr<void> _onStartGameMainEvent(
     StartGameMainEvent event,
     Emitter<MainState> emit,
@@ -142,12 +224,34 @@ class MainBloc extends HydratedBloc<MainEvent, MainState> {
     emit(
       MainPlayingState(
         gridItems: startGridItems,
-        // gameSession: gameSession,
         gameState: startGameState,
+        playerX:
+            event.playerX ??
+            PlayerEntity(
+              id: 0,
+              name: 'Player X',
+              games: 0,
+              wins: 0,
+              losses: 0,
+              draws: 0,
+            ),
+        playerO:
+            event.playerO ??
+            PlayerEntity(
+              id: 0,
+              name: 'Player O',
+              games: 0,
+              wins: 0,
+              losses: 0,
+              draws: 0,
+            ),
+        // gameSession: gameSession,
       ),
     );
   }
 
+  /// In MainPlayingState:
+  // Задача _onTappedOnMainEvent — сделать ход в игре
   FutureOr<void> _onTappedOnMainEvent(
     TappedOnMainEvent event,
     Emitter<MainState> emit,
@@ -185,9 +289,7 @@ class MainBloc extends HydratedBloc<MainEvent, MainState> {
     final currentBigCell = gridItems.bigGridItems[indexBig];
     final currentSmallCell = gridItems.smallGridItems[indexBig][indexSmall];
 
-    if (currentBigCell.isNotEmpty || currentSmallCell.isNotEmpty) {
-      return;
-    }
+    if (currentBigCell.isNotEmpty || currentSmallCell.isNotEmpty) return;
 
     // Создаём копии игрового поля.
     final newSmallGridItems = gridItems.smallGridItems
@@ -201,7 +303,7 @@ class MainBloc extends HydratedBloc<MainEvent, MainState> {
     );
 
     // Размещаем символ текущего игрока.
-    final symbol = gameState.currentPlayer.name;
+    final symbol = gameState.currentSymbol.name;
     newSmallGridItems[indexBig][indexSmall] = symbol;
 
     // Проверяем победу в маленькой сетке.
@@ -246,7 +348,7 @@ class MainBloc extends HydratedBloc<MainEvent, MainState> {
     );
 
     final updatedGameState = gameState.copyWith(
-      currentPlayer: gameState.currentPlayer == PlayerSymbol.x
+      currentSymbol: gameState.currentSymbol == PlayerSymbol.x
           ? PlayerSymbol.o
           : PlayerSymbol.x,
       moveCount: gameState.moveCount + 1,
@@ -263,9 +365,13 @@ class MainBloc extends HydratedBloc<MainEvent, MainState> {
     if (bigWinner == PlayerSymbol.x.name || bigWinner == PlayerSymbol.o.name) {
       emit(
         MainFinishedState(
-          // gameSession: currentState.gameSession,
           gameState: currentState.gameState,
           gameGridItems: updatedGridItems,
+          winnerPlayer: bigWinner == PlayerSymbol.x.name
+              ? currentState.playerX
+              : currentState.playerO,
+          playerX: currentState.playerX,
+          playerO: currentState.playerO,
         ),
       );
       return;
@@ -280,23 +386,25 @@ class MainBloc extends HydratedBloc<MainEvent, MainState> {
     );
   }
 
+  // Задача _onRestartGameMainEvent — начать игру заново с предыдущими данными.
+  // Он не сохраняет значение в ДБ
   FutureOr<void> _onRestartGameMainEvent(
     RestartGameMainEvent event,
     Emitter<MainState> emit,
   ) async {
     // 1. Получаем текущие данные вне зависимости от того, Playing это или Finished
     final GridItemsEntity gridItems;
-    // final GameSessionEntity session;
+    final List<PlayerEntity> playersInGame;
     final GameStateEntity gameState;
     if (state is MainPlayingState) {
       final current = state as MainPlayingState;
       gridItems = current.gridItems;
-      // session = current.gameSession;
+      playersInGame = [current.playerX, current.playerO];
       gameState = current.gameState;
     } else if (state is MainFinishedState) {
       final current = state as MainFinishedState;
       gridItems = current.gameGridItems;
-      // session = current.gameSession;
+      playersInGame = [current.playerX, current.playerO];
       gameState = current.gameState;
     } else {
       return;
@@ -313,7 +421,7 @@ class MainBloc extends HydratedBloc<MainEvent, MainState> {
       ),
     );
     final updatedGameState = gameState.copyWith(
-      currentPlayer: PlayerSymbol.x,
+      currentSymbol: PlayerSymbol.x,
       moveCount: 0,
       permissibleBigGrid: List.generate(
         gridItems.bigGridItems.length,
@@ -324,108 +432,83 @@ class MainBloc extends HydratedBloc<MainEvent, MainState> {
     emit(
       MainPlayingState(
         gridItems: updatedGridItems,
-        // gameSession: session,
         gameState: updatedGameState,
+        playerX: playersInGame[0],
+        playerO: playersInGame[1],
       ),
     );
   }
 
-  FutureOr<void> _onResetToMenuMainEvent(
-    ResetToMenuMainEvent event,
+  // Задача _onResetToMenuMainEvent — вернуть в начальное окно с предыдущими
+  // данными. Он не сохраняет значение в ДБ
+  FutureOr<void> _onExitGameMainEvent(
+    ExitGameMainEvent event,
     Emitter<MainState> emit,
   ) async {
-    /// При MainFinishedState сохраняем игру в БД,
-    /// При Игре нет!!!!
-    // if (state is! MainFinishedState) return;
-    // if (event.saveGame == SaveGame.yes) {
-    //   await mainRepository.recordFinishedGame(
-    //     playerAId: event.playerAId,
-    //     playerBId: event.playerBId,
-    //     winnerPlayerId: event.winnerPlayerId,
-    //     mode: event.mode,
-    //   );
-    // }
+    if (state is! MainPlayingState) return;
+    final currentState = state as MainPlayingState;
+
+    /// MainInitialState должен брать данные (кроме playerX и playerO)
+    /// из GameSettingsBloc, который еще не реализовал
     emit(
       MainInitialState(
-        players: [
-          PlayerEntity(
-            id: 0,
-            name: 'Player 1',
-            games: 0,
-            wins: 0,
-            losses: 0,
-            draws: 0,
-          ),
-          PlayerEntity(
-            id: 1,
-            name: 'Player 2',
-            games: 0,
-            wins: 0,
-            losses: 0,
-            draws: 0,
-          ),
-        ],
-        gameMode: GameMode.classic,
-        selectedSize: 4,
-        saveGame: SaveGame.no,
+        players: testForMainInitialState.players,
+        selectedPlayerX: currentState.playerX,
+        selectedPlayerO: currentState.playerO,
+        gameMode: currentState.gameState.gameMode,
+        selectedSize: testForMainInitialState.selectedSize,
+        saveGame: currentState.gameState.saveGame,
       ),
     );
   }
 
-  FutureOr<void> _onSaveGameMainEvent(
-    SaveGameMainEvent event,
+  FutureOr<void> _onFinishAndRestartGameMainEvent(
+    FinishAndRestartGameMainEvent event,
     Emitter<MainState> emit,
   ) async {
     if (state is! MainFinishedState) return;
-    await mainRepository.recordFinishedGame(
-      playerAId: event.playerAId,
-      playerBId: event.playerBId,
-      winnerPlayerId: event.winnerPlayerId,
-      mode: event.mode,
-    );
+    final currentState = state as MainFinishedState;
+    if (currentState.gameState.saveGame == SaveGame.yes) {
+      await mainRepository.recordFinishedGame(
+        playerXId: currentState.playerX.id,
+        playerOId: currentState.playerO.id,
+        winnerPlayerId: currentState.winnerPlayer.id,
+        mode: currentState.gameState.gameMode,
+      );
+    }
     emit(
-      MainInitialState(
-        players: [],
-        gameMode: GameMode.classic,
-        selectedSize: 4,
-        saveGame: SaveGame.no,
+      MainPlayingState(
+        gridItems: currentState.gameGridItems,
+        gameState: currentState.gameState,
+        playerX: currentState.playerX,
+        playerO: currentState.playerO,
       ),
     );
   }
 
-  @override
-  MainState? fromJson(Map<String, dynamic> json) {
-    if (json['gridItems'] != null) {
-      return MainPlayingState(
-        gridItems: GridItemsEntity.fromJson(json['gridItems']),
-        // gameSession: GameSessionEntity.fromJson(json['gameSession']),
-        gameState: GameStateEntity.fromJson(json['gameState']),
+  FutureOr<void> _onFinishAndExitGameMainEvent(
+    FinishAndExitGameMainEvent event,
+    Emitter<MainState> emit,
+  ) async {
+    if (state is! MainFinishedState) return;
+    final currentState = state as MainFinishedState;
+    if (currentState.gameState.saveGame == SaveGame.yes) {
+      await mainRepository.recordFinishedGame(
+        playerXId: currentState.playerX.id,
+        playerOId: currentState.playerO.id,
+        winnerPlayerId: currentState.winnerPlayer.id,
+        mode: currentState.gameState.gameMode,
       );
-    } else {
-      return MainFinishedState(
-        gameGridItems: GridItemsEntity.fromJson(json['gameGridItems']),
-        // gameSession: GameSessionEntity.fromJson(json['gameSession']),
-        gameState: GameStateEntity.fromJson(json['gameState']),
-      );
     }
-  }
-
-  @override
-  Map<String, dynamic>? toJson(MainState state) {
-    if (state is MainPlayingState) {
-      return {
-        'gridItems': state.gridItems.toJson(),
-        // 'gameSession': state.gameSession.toJson(),
-        'gameState': state.gameState.toJson(),
-      };
-    }
-    if (state is MainFinishedState) {
-      return {
-        'gameGridItems': state.gameGridItems.toJson(),
-        // 'gameSession': state.gameSession.toJson(),
-        'gameState': state.gameState.toJson(),
-      };
-    }
-    return null;
+    emit(
+      MainInitialState(
+        players: testForMainInitialState.players,
+        selectedPlayerX: currentState.playerX,
+        selectedPlayerO: currentState.playerO,
+        gameMode: currentState.gameState.gameMode,
+        selectedSize: testForMainInitialState.selectedSize,
+        saveGame: currentState.gameState.saveGame,
+      ),
+    );
   }
 }

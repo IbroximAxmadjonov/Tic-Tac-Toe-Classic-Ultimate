@@ -1,7 +1,7 @@
 import '../constants/enums.dart';
 
 class GameStateEntity {
-  final PlayerSymbol currentPlayer;
+  final PlayerSymbol currentSymbol;
   final GameMode gameMode;
   final GameStatus gameStatus;
   final int moveCount;
@@ -9,7 +9,7 @@ class GameStateEntity {
   final SaveGame saveGame;
 
   GameStateEntity({
-    this.currentPlayer = PlayerSymbol.x,
+    this.currentSymbol = PlayerSymbol.x,
     required this.gameMode,
     this.gameStatus = GameStatus.playing,
     this.moveCount = 0,
@@ -18,7 +18,7 @@ class GameStateEntity {
   });
 
   GameStateEntity copyWith({
-    PlayerSymbol? currentPlayer,
+    PlayerSymbol? currentSymbol,
     GameMode? gameMode,
     GameStatus? gameStatus,
     int? moveCount,
@@ -26,7 +26,7 @@ class GameStateEntity {
     SaveGame? saveGame,
   }) {
     return GameStateEntity(
-      currentPlayer: currentPlayer ?? this.currentPlayer,
+      currentSymbol: currentSymbol ?? this.currentSymbol,
       gameMode: gameMode ?? this.gameMode,
       gameStatus: gameStatus ?? this.gameStatus,
       moveCount: moveCount ?? this.moveCount,
@@ -37,7 +37,7 @@ class GameStateEntity {
 
   Map<String, dynamic> toJson() {
     return {
-      'currentPlayer': currentPlayer.name,
+      'currentSymbol': currentSymbol.name,
       'gameMode': gameMode.name,
       'gameStatus': gameStatus.name,
       'moveCount': moveCount,
@@ -48,8 +48,8 @@ class GameStateEntity {
 
   factory GameStateEntity.fromJson(Map<String, dynamic> map) {
     return GameStateEntity(
-      currentPlayer: PlayerSymbol.values.firstWhere(
-        (symbol) => symbol.name == map['currentPlayer'],
+      currentSymbol: PlayerSymbol.values.firstWhere(
+        (symbol) => symbol.name == map['currentSymbol'],
       ),
       gameMode: GameMode.values.firstWhere((mode) => mode.name == map['gameMode']),
       gameStatus: GameStatus.values.firstWhere(

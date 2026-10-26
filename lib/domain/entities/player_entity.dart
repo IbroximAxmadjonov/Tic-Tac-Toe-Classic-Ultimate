@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PlayerEntity {
-  final int? id;
+  final int id;
   final String name;
   final int games;
   final int wins;
@@ -9,7 +9,7 @@ class PlayerEntity {
   final int draws;
 
   PlayerEntity({
-    this.id,
+    required this.id,
     required this.name,
     required this.games,
     required this.wins,

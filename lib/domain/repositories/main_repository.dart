@@ -36,6 +36,7 @@ class MainRepository {
     return result
         .map(
           (row) => PlayerEntity(
+            id: row.id,
             name: row.name,
             games: row.games,
             wins: row.wins,
@@ -52,6 +53,7 @@ class MainRepository {
     )..where((t) => t.id.equals(playerId))).getSingleOrNull();
     if (result != null) {
       return PlayerEntity(
+        id: result.id,
         name: result.name,
         games: result.games,
         wins: result.wins,
@@ -77,8 +79,8 @@ class MainRepository {
     return result.map((row) {
       return PlayerPairEntity(
         id: row.id,
-        player1Id: row.player1Id,
-        player2Id: row.player2Id,
+        playerXId: row.player1Id,
+        playerOId: row.player2Id,
         games: row.games,
         player1Wins: row.player1Wins,
         player2Wins: row.player2Wins,
@@ -116,24 +118,24 @@ class MainRepository {
   /// IMPORTANT: invoke once for each genuinely finished game, not on every
   /// rebuild or repeated state emission.
   Future<int> recordFinishedGame({
-    required int playerAId,
-    required int playerBId,
+    required int playerXId,
+    required int playerOId,
     required int? winnerPlayerId,
     required GameMode mode,
     DateTime? playedAt,
   }) {
-    if (playerAId == playerBId) {
+    if (playerXId == playerOId) {
       throw ArgumentError('A player cannot play against themselves.');
     }
 
     if (winnerPlayerId != null &&
-        winnerPlayerId != playerAId &&
-        winnerPlayerId != playerBId) {
+        winnerPlayerId != playerXId &&
+        winnerPlayerId != playerOId) {
       throw ArgumentError('Winner must be one of the two participants.');
     }
 
-    final firstId = playerAId < playerBId ? playerAId : playerBId;
-    final secondId = playerAId < playerBId ? playerBId : playerAId;
+    final firstId = playerXId < playerOId ? playerXId : playerOId;
+    final secondId = playerXId < playerOId ? playerOId : playerXId;
     final timestamp = playedAt ?? DateTime.now();
 
     return _db.transaction(() async {

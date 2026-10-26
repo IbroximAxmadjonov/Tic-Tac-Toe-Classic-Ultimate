@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tic_tac_toe/presentation/widgets/main/grid_tile_widget.dart';
 
 import '../../../domain/constants/enums.dart';
-import 'grid_mode_tile.dart';
 import 'grid_section_card.dart';
 
 class GridModeSelector extends StatelessWidget {
@@ -24,22 +24,24 @@ class GridModeSelector extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: GridModeTile(
-                  mode: GameMode.classic,
+                child: GridTileWidget(
+                  value: GameMode.classic,
                   title: 'Classic',
-                  icon: Icons.grid_3x3_rounded,
                   isSelected: selectedMode == GameMode.classic,
-                  onSelected: onModeChanged,
+                  onSelected: (value) {
+                    onModeChanged(value as GameMode);
+                  },
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: GridModeTile(
-                  mode: GameMode.ultimate,
+                child: GridTileWidget(
+                  value: GameMode.ultimate,
                   title: 'Ultimate',
-                  icon: Icons.grid_view_rounded,
                   isSelected: selectedMode == GameMode.ultimate,
-                  onSelected: onModeChanged,
+                  onSelected: (value) {
+                    onModeChanged(value as GameMode);
+                  },
                 ),
               ),
             ],
@@ -48,22 +50,24 @@ class GridModeSelector extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: GridModeTile(
-                  mode: GameMode.expanded,
+                child: GridTileWidget(
+                  value: GameMode.expanded,
                   title: 'Expanded',
-                  icon: Icons.fullscreen_rounded,
                   isSelected: selectedMode == GameMode.expanded,
-                  onSelected: onModeChanged,
+                  onSelected: (value) {
+                    onModeChanged(value as GameMode);
+                  },
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: GridModeTile(
-                  mode: GameMode.threeInARow,
+                child: GridTileWidget(
+                  value: GameMode.threeInARow,
                   title: 'Three in a row',
-                  icon: Icons.linear_scale_rounded,
                   isSelected: selectedMode == GameMode.threeInARow,
-                  onSelected: onModeChanged,
+                  onSelected: (value) {
+                    onModeChanged(value as GameMode);
+                  },
                 ),
               ),
             ],

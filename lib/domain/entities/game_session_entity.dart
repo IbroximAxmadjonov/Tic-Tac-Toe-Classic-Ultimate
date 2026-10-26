@@ -1,5 +1,3 @@
-
-
 import '../constants/enums.dart';
 
 class GameSessionEntity {

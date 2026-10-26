@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/constants/enums.dart';
-
-class GridModeTile extends StatelessWidget {
-  final GameMode mode;
+class GridTileWidget extends StatelessWidget {
+  final Object value;
   final String title;
-  final IconData icon;
+  final IconData? icon;
   final bool isSelected;
-  final ValueChanged<GameMode> onSelected;
+  final ValueChanged<Object> onSelected;
 
-  const GridModeTile({
+  const GridTileWidget({
     super.key,
-    required this.mode,
+    required this.value,
     required this.title,
-    required this.icon,
+    this.icon,
     required this.isSelected,
     required this.onSelected,
   });
@@ -26,11 +24,15 @@ class GridModeTile extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => onSelected(mode),
+        onTap: () => onSelected(value),
         borderRadius: BorderRadius.circular(14),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          padding: EdgeInsets.symmetric(
+            horizontal: icon == null ? 8 : 10,
+            vertical: icon == null ? 11 : 12,
+          ),
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             color: isSelected ? colorScheme.primary : colorScheme.surface,
             borderRadius: BorderRadius.circular(14),
@@ -50,13 +52,16 @@ class GridModeTile extends StatelessWidget {
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 20,
-                color: isSelected ? colorScheme.onPrimary : colorScheme.primary,
-              ),
-              const SizedBox(width: 8),
+              if (icon != null) ...[
+                Icon(
+                  icon,
+                  size: 20,
+                  color: isSelected ? colorScheme.onPrimary : colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+              ],
               Flexible(
                 child: FittedBox(
                   fit: BoxFit.scaleDown,

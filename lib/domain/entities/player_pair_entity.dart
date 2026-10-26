@@ -1,7 +1,7 @@
 class PlayerPairEntity {
   final int id;
-  final int player1Id;
-  final int player2Id;
+  final int playerXId;
+  final int playerOId;
   final int games;
   final int player1Wins;
   final int player2Wins;
@@ -10,8 +10,8 @@ class PlayerPairEntity {
 
   PlayerPairEntity({
     required this.id,
-    required this.player1Id,
-    required this.player2Id,
+    required this.playerXId,
+    required this.playerOId,
     required this.games,
     required this.player1Wins,
     required this.player2Wins,

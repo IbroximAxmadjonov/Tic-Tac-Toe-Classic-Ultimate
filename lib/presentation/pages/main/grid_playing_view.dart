@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tic_tac_toe/presentation/manager/main_bloc/main_bloc.dart';
 import 'package:tic_tac_toe/presentation/pages/main/grid_grid_view.dart';
 
+import '../../../domain/constants/enums.dart';
 import '../../widgets/main/widgets.dart';
 
 class GridPlayingView extends StatelessWidget {
@@ -14,7 +15,6 @@ class GridPlayingView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final gridItems = state.gridItems;
     final gameState = state.gameState;
 
     return Padding(
@@ -40,7 +40,9 @@ class GridPlayingView extends StatelessWidget {
                     child: _StatChip(
                       icon: Icons.sports_esports_rounded,
                       label: 'Ходит',
-                      value: gameState.currentPlayer.name.toUpperCase(),
+                      value: gameState.currentSymbol == PlayerSymbol.x
+                          ? state.playerX.name
+                          : state.playerO.name,
                       color: colorScheme.primary,
                     ),
                   ),
@@ -64,7 +66,7 @@ class GridPlayingView extends StatelessWidget {
               icon: Icons.grid_on_rounded,
               title: 'Игровое поле',
               child: GridGridView(
-                gridItems: gridItems,
+                gridItems: state.gridItems,
                 permissionBigGridItems: gameState.permissibleBigGrid,
               ),
             ),
@@ -97,14 +99,7 @@ class GridPlayingView extends StatelessWidget {
               height: 52,
               child: OutlinedButton.icon(
                 onPressed: () {
-                  context.read<MainBloc>().add(
-                    ResetToMenuMainEvent(
-                      // playerAId: state.playerAId,
-                      // playerBId: state.playerBId,
-                      // winnerPlayerId: winnerPlayerId,
-                      // mode: state.gameState.gameMode,
-                    ),
-                  );
+                  context.read<MainBloc>().add(ExitGameMainEvent());
                 },
                 icon: Icon(
                   Icons.arrow_back_rounded,

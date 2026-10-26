@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:tic_tac_toe/presentation/manager/statics_provider/statics_provider.dart';
 
 import 'data/data_base/app_database.dart';
 import 'domain/repositories/main_repository.dart';
@@ -12,4 +13,5 @@ Future<void> initDependencies() async {
   sl.registerLazySingleton<MainRepository>(() => MainRepository(db: sl()));
   sl.registerLazySingleton<MainBloc>(() => MainBloc(mainRepository: sl()));
   sl.registerLazySingleton<ThemeBloc>(() => ThemeBloc());
+  sl.registerLazySingleton<StaticsProvider>(() => StaticsProvider());
 }

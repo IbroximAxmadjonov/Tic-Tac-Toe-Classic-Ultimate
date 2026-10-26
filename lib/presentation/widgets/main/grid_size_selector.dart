@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tic_tac_toe/presentation/widgets/main/grid_tile_widget.dart';
 import 'grid_section_card.dart';
-import 'grid_size_tile.dart';
 
 class GridSizeSelector extends StatelessWidget {
   final bool isVisible;
@@ -33,10 +33,13 @@ class GridSizeSelector extends StatelessWidget {
               for (int i = 0; i < availableSizes.length; i++) ...[
                 if (i > 0) const SizedBox(width: 8),
                 Expanded(
-                  child: GridSizeTile(
-                    size: availableSizes[i],
+                  child: GridTileWidget(
+                    value: availableSizes[i],
+                    title: '${availableSizes[i]}x${availableSizes[i]}',
                     isSelected: selectedSize == availableSizes[i],
-                    onSelected: onSizeChanged,
+                    onSelected: (value) {
+                      onSizeChanged(value as int);
+                    },
                   ),
                 ),
               ],
