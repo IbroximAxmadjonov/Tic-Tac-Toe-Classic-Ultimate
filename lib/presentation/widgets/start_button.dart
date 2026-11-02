@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 
-class GridStartButton extends StatelessWidget {
+class StartButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const GridStartButton({
-    super.key,
-    required this.onPressed,
-  });
+  const StartButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

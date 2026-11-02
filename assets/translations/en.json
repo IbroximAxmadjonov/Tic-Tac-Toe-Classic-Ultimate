@@ -1,0 +1,33 @@
+{
+  "player": "Player",
+  "start": "Start",
+  "restart": "Restart",
+  "mode": "Mode",
+  "settings": {
+    "title": "Settings",
+    "select_mode": "Select mode",
+    "selected_size": "Selected size",
+    "language": "Language",
+    "theme": {
+      "title": "Theme",
+      "system": "Auto",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "audio": {
+      "title": "Sound & Haptics",
+      "sound": {
+        "title": "Sound Effects",
+        "subtitle": "Move and victory sounds"
+      },
+      "vibration": {
+        "title": "Vibration",
+        "subtitle": "Haptic feedback on tap"
+      }
+    },
+    "about": {
+      "title": "About",
+      "version": "Version 1.0.0"
+    }
+  }
+}

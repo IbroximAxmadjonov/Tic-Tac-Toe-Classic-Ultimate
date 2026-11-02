@@ -16,6 +16,24 @@ class PlayerEntity {
     required this.losses,
     required this.draws,
   });
+
+  PlayerEntity copyWith({
+    int? id,
+    String? name,
+    int? games,
+    int? wins,
+    int? losses,
+    int? draws,
+  }) {
+    return PlayerEntity(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      games: games ?? this.games,
+      wins: wins ?? this.wins,
+      losses: losses ?? this.losses,
+      draws: draws ?? this.draws,
+    );
+  }
 }
 
 Future<String> noPlayerNameWithCounter() async {

@@ -6,14 +6,10 @@ class HistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('History Page'),
-      ),
+      appBar: AppBar(title: Text('History Page')),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('History Page'),
-        ],
+        children: [Text('History Page')],
       ),
     );
   }

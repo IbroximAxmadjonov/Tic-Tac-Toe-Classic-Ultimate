@@ -1,9 +1,8 @@
-import 'package:tic_tac_toe/presentation/manager/main_bloc/main_bloc.dart';
-
+import '../../presentation/manager/home_bloc/home_bloc.dart';
 import '../entities/player_entity.dart';
 import 'enums.dart';
 
-final testForMainInitialState = MainInitialState(
+final testForHomeSetupState = HomeSetupState(
   players: [
     PlayerEntity(id: 0, name: 'Player 1', games: 0, wins: 0, losses: 0, draws: 0),
     PlayerEntity(id: 1, name: 'Player 2', games: 0, wins: 0, losses: 0, draws: 0),

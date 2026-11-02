@@ -1,27 +1,41 @@
-part of 'main_bloc.dart';
+part of 'home_bloc.dart';
 
-abstract class MainState extends Equatable {}
+abstract class HomeState extends Equatable {}
 
-class MainInitialState extends MainState {
+class HomeInitialState extends HomeState {
+  @override
+  List<Object?> get props => [];
+}
+
+class HomeSetupState extends HomeState {
   final List<PlayerEntity> players;
+  final List<PlayerPairEntity> playerPairs;
+  final List<GameSessionEntity> selectedPairSessions;
+  final PlayerEntity? lastFetchedPlayer;
   final PlayerEntity? selectedPlayerX;
   final PlayerEntity? selectedPlayerO;
   final GameMode gameMode;
   final int selectedSize;
   final SaveGame saveGame;
 
-  MainInitialState({
+  HomeSetupState({
     required this.players,
+    this.playerPairs = const [],
+    this.selectedPairSessions = const [],
+    this.lastFetchedPlayer,
     this.selectedPlayerX,
     this.selectedPlayerO,
     required this.gameMode,
     required this.selectedSize,
-    required this.saveGame,
+    this.saveGame = SaveGame.no,
   });
 
   @override
   List<Object?> get props => [
     players,
+    playerPairs,
+    selectedPairSessions,
+    lastFetchedPlayer,
     selectedPlayerX,
     selectedPlayerO,
     gameMode,
@@ -29,10 +43,11 @@ class MainInitialState extends MainState {
     saveGame,
   ];
 
-  // Используем Object? sentinel для явного сброса в null через copyWith.
-  // Передай clearPlayerA: true, чтобы обнулить selectedPlayerA.
-  MainInitialState copyWith({
+  HomeSetupState copyWith({
     List<PlayerEntity>? players,
+    List<PlayerPairEntity>? playerPairs,
+    List<GameSessionEntity>? selectedPairSessions,
+    PlayerEntity? lastFetchedPlayer,
     PlayerEntity? selectedPlayerX,
     bool clearPlayerX = false,
     PlayerEntity? selectedPlayerO,
@@ -41,8 +56,11 @@ class MainInitialState extends MainState {
     int? selectedSize,
     SaveGame? saveGame,
   }) {
-    return MainInitialState(
+    return HomeSetupState(
       players: players ?? this.players,
+      playerPairs: playerPairs ?? this.playerPairs,
+      selectedPairSessions: selectedPairSessions ?? this.selectedPairSessions,
+      lastFetchedPlayer: lastFetchedPlayer ?? this.lastFetchedPlayer,
       selectedPlayerX: clearPlayerX
           ? null
           : (selectedPlayerX ?? this.selectedPlayerX),
@@ -56,27 +74,27 @@ class MainInitialState extends MainState {
   }
 }
 
-class MainPlayingState extends MainState {
+class HomePlayingState extends HomeState {
   final GridItemsEntity gridItems;
   final GameStateEntity gameState;
 
   final PlayerEntity playerX;
   final PlayerEntity playerO;
 
-  MainPlayingState({
+  HomePlayingState({
     required this.gridItems,
     required this.gameState,
     required this.playerX,
     required this.playerO,
   });
 
-  MainPlayingState copyWith({
+  HomePlayingState copyWith({
     GridItemsEntity? gridItems,
     GameStateEntity? gameState,
     PlayerEntity? playerX,
     PlayerEntity? playerO,
   }) {
-    return MainPlayingState(
+    return HomePlayingState(
       gridItems: gridItems ?? this.gridItems,
       gameState: gameState ?? this.gameState,
       playerX: playerX ?? this.playerX,
@@ -88,14 +106,14 @@ class MainPlayingState extends MainState {
   List<Object?> get props => [gridItems, gameState, playerX, playerO];
 }
 
-class MainFinishedState extends MainState {
+class HomeFinishedState extends HomeState {
   final GameStateEntity gameState;
   final GridItemsEntity gameGridItems;
-  final PlayerEntity winnerPlayer;
+  final PlayerEntity? winnerPlayer;
   final PlayerEntity playerX;
   final PlayerEntity playerO;
 
-  MainFinishedState({
+  HomeFinishedState({
     required this.gameState,
     required this.gameGridItems,
     required this.winnerPlayer,

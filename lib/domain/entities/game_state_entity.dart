@@ -51,7 +51,9 @@ class GameStateEntity {
       currentSymbol: PlayerSymbol.values.firstWhere(
         (symbol) => symbol.name == map['currentSymbol'],
       ),
-      gameMode: GameMode.values.firstWhere((mode) => mode.name == map['gameMode']),
+      gameMode: GameMode.values.firstWhere(
+        (mode) => mode.name == map['gameMode'],
+      ),
       gameStatus: GameStatus.values.firstWhere(
         (status) => status.name == map['gameStatus'],
       ),

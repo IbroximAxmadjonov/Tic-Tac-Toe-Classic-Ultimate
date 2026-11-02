@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tic_tac_toe/presentation/manager/main_bloc/main_bloc.dart';
-import 'package:tic_tac_toe/presentation/pages/main/grid_grid_view.dart';
 
 import '../../../domain/constants/enums.dart';
-import '../../widgets/main/widgets.dart';
+import '../../manager/home_bloc/home_bloc.dart';
+import '../../widgets/widgets.dart';
 
-class GridPlayingView extends StatelessWidget {
-  final MainPlayingState state;
+class PlayingHomeView extends StatelessWidget {
+  final HomePlayingState state;
 
-  const GridPlayingView({super.key, required this.state});
+  const PlayingHomeView({super.key, required this.state});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,7 @@ class GridPlayingView extends StatelessWidget {
             // const SizedBox(height: 16),
 
             // ── Статус игры ────────────────────────────────────────────────
-            GridSectionCard(
+            SectionCard(
               icon: Icons.person_rounded,
               title: 'Статус игры',
               child: Row(
@@ -62,10 +61,10 @@ class GridPlayingView extends StatelessWidget {
             const SizedBox(height: 16),
 
             // ── Игровое поле ───────────────────────────────────────────────
-            GridSectionCard(
+            SectionCard(
               icon: Icons.grid_on_rounded,
               title: 'Игровое поле',
-              child: GridGridView(
+              child: BigGridWidget(
                 gridItems: state.gridItems,
                 permissionBigGridItems: gameState.permissibleBigGrid,
               ),
@@ -78,7 +77,7 @@ class GridPlayingView extends StatelessWidget {
               height: 52,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  context.read<MainBloc>().add(RestartGameMainEvent());
+                  context.read<HomeBloc>().add(RestartGameHomeEvent());
                 },
                 icon: const Icon(Icons.replay_rounded, size: 22),
                 label: const Text(
@@ -99,7 +98,7 @@ class GridPlayingView extends StatelessWidget {
               height: 52,
               child: OutlinedButton.icon(
                 onPressed: () {
-                  context.read<MainBloc>().add(ExitGameMainEvent());
+                  context.read<HomeBloc>().add(ExitGameHomeEvent());
                 },
                 icon: Icon(
                   Icons.arrow_back_rounded,
@@ -115,7 +114,10 @@ class GridPlayingView extends StatelessWidget {
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
+                  side: BorderSide(
+                    color: colorScheme.outlineVariant,
+                    width: 1.2,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

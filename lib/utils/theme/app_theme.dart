@@ -41,7 +41,9 @@ class AppTheme {
           textStyle: textTheme.bodyMedium,
           padding: EdgeInsets.symmetric(vertical: 10.h),
           fixedSize: Size(350.w, 60.h),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(19.r)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(19.r),
+          ),
           alignment: Alignment.center,
         ),
       ),
@@ -57,7 +59,9 @@ class AppTheme {
           iconSize: 24.sp,
           padding: EdgeInsets.symmetric(vertical: 24.5.h),
           fixedSize: Size(45.67.r, 45.67.r),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17.r)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(17.r),
+          ),
           alignment: Alignment.center,
         ),
       ),

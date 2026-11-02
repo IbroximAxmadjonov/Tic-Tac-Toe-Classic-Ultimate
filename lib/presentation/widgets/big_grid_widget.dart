@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../domain/constants/enums.dart';
-import '../../../domain/entities/grid_items_entity.dart';
-import '../../manager/main_bloc/main_bloc.dart';
+import '../../domain/constants/enums.dart';
+import '../../domain/entities/grid_items_entity.dart';
+import '../manager/home_bloc/home_bloc.dart';
 
-
-class GridGridView extends StatelessWidget {
+class BigGridWidget extends StatelessWidget {
   final GridItemsEntity gridItems;
   final List<Permission> permissionBigGridItems;
 
-  const GridGridView({
+  const BigGridWidget({
     super.key,
     required this.gridItems,
     required this.permissionBigGridItems,
@@ -26,7 +25,7 @@ class GridGridView extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemBuilder: (context, indexOfBigGrid) {
-        final smallGrid = Grid(
+        final smallGrid = SmallGridWidget(
           itemCount: gridItems.smallGridItems[indexOfBigGrid].length,
           crossAxisCount: gridItems.smallGridCrossAxisCount,
           indexOfBigGrid: indexOfBigGrid,
@@ -37,7 +36,9 @@ class GridGridView extends StatelessWidget {
           padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
             border: Border.all(
-              color: permissionBigGridItems[indexOfBigGrid] == Permission.permissible
+              color:
+                  permissionBigGridItems[indexOfBigGrid] ==
+                      Permission.permissible
                   ? Colors.green
                   : Colors.transparent,
             ),
@@ -63,8 +64,8 @@ class GridGridView extends StatelessWidget {
   }
 }
 
-class Grid extends StatelessWidget {
-  const Grid({
+class SmallGridWidget extends StatelessWidget {
+  const SmallGridWidget({
     super.key,
     required this.itemCount,
     required this.crossAxisCount,
@@ -89,8 +90,8 @@ class Grid extends StatelessWidget {
       itemBuilder: (context, indexOfSmallGrid) {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => context.read<MainBloc>().add(
-            TappedOnMainEvent(
+          onTap: () => context.read<HomeBloc>().add(
+            TappedOnHomeEvent(
               indexOfBigGrid: indexOfBigGrid,
               indexOfSmallGrid: indexOfSmallGrid,
             ),

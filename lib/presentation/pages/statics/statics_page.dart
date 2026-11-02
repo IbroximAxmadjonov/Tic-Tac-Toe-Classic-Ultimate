@@ -22,7 +22,9 @@ class StaticsPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 final player = players[index];
                 return ListTile(
-                  leading: CircleAvatar(child: Text(player.name[0].toUpperCase())),
+                  leading: CircleAvatar(
+                    child: Text(player.name[0].toUpperCase()),
+                  ),
                   title: Text(player.name),
                   subtitle: Text(
                     'Games: ${player.games} | '

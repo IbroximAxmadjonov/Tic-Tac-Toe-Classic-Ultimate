@@ -45,8 +45,11 @@ class PlayerPairsTable extends Table {
 class GameSessionsTable extends Table {
   IntColumn get id => integer().autoIncrement()();
 
-  IntColumn get playerPairId =>
-      integer().references(PlayerPairsTable, #id, onDelete: KeyAction.cascade)();
+  IntColumn get playerPairId => integer().references(
+    PlayerPairsTable,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
 
   TextColumn get result => textEnum<GameResult>()();
 

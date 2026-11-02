@@ -29,7 +29,8 @@ class GridItemsEntity {
       bigGridItems: bigGridItems != null
           ? List<String>.from(bigGridItems)
           : this.bigGridItems,
-      bigGridCrossAxisCount: bigGridCrossAxisCount ?? this.bigGridCrossAxisCount,
+      bigGridCrossAxisCount:
+          bigGridCrossAxisCount ?? this.bigGridCrossAxisCount,
       bigGridWinLength: bigGridWinLength ?? this.bigGridWinLength,
 
       // ГЛУБОКАЯ КОПИЯ: клонируем внешний список и каждый вложенный список

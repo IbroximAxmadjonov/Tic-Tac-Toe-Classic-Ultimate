@@ -7,9 +7,10 @@ import '../../data/data_base/app_database.dart';
 import '../constants/enums.dart';
 
 class MainRepository {
-  MainRepository({required this._db});
+  MainRepository({required this.db});
 
-  final AppDatabase _db;
+  final AppDatabase db;
+  AppDatabase get _db => db;
 
   /// Creates a player and returns its generated ID.
   Future<int> createPlayer(String name) async {
@@ -151,11 +152,15 @@ class MainRepository {
       }
 
       // Update player totals.
-      await (_db.update(_db.playersTable)..where((t) => t.id.equals(firstId))).write(
+      await (_db.update(
+        _db.playersTable,
+      )..where((t) => t.id.equals(firstId))).write(
         PlayersTableCompanion(
           games: Value(firstPlayer.games + 1),
           wins: Value(firstPlayer.wins + (winnerPlayerId == firstId ? 1 : 0)),
-          losses: Value(firstPlayer.losses + (winnerPlayerId == secondId ? 1 : 0)),
+          losses: Value(
+            firstPlayer.losses + (winnerPlayerId == secondId ? 1 : 0),
+          ),
         ),
       );
 
@@ -165,14 +170,17 @@ class MainRepository {
         PlayersTableCompanion(
           games: Value(secondPlayer.games + 1),
           wins: Value(secondPlayer.wins + (winnerPlayerId == secondId ? 1 : 0)),
-          losses: Value(secondPlayer.losses + (winnerPlayerId == firstId ? 1 : 0)),
+          losses: Value(
+            secondPlayer.losses + (winnerPlayerId == firstId ? 1 : 0),
+          ),
         ),
       );
 
       // Find or create the canonical pair.
       final existingPair =
           await (_db.select(_db.playerPairsTable)..where(
-                (t) => t.player1Id.equals(firstId) & t.player2Id.equals(secondId),
+                (t) =>
+                    t.player1Id.equals(firstId) & t.player2Id.equals(secondId),
               ))
               .getSingleOrNull();
 
@@ -230,19 +238,23 @@ class MainRepository {
   }
 
   /// Renaming a player does not break history because relationships use IDs.
-  Future<void> renamePlayer({required int playerId, required String newName}) async {
+  Future<void> renamePlayer({
+    required int playerId,
+    required String newName,
+  }) async {
     final normalizedName = newName.trim();
     if (normalizedName.isEmpty) {
       throw ArgumentError.value(newName, 'newName', 'Name must not be empty.');
     }
 
-    await (_db.update(_db.playersTable)..where((t) => t.id.equals(playerId))).write(
-      PlayersTableCompanion(name: Value(normalizedName)),
-    );
+    await (_db.update(_db.playersTable)..where((t) => t.id.equals(playerId)))
+        .write(PlayersTableCompanion(name: Value(normalizedName)));
   }
 
   Future<void> deletePlayer(int playerId) async {
-    await (_db.delete(_db.playersTable)..where((t) => t.id.equals(playerId))).go();
+    await (_db.delete(
+      _db.playersTable,
+    )..where((t) => t.id.equals(playerId))).go();
     // Foreign-key cascade removes pair records and their game history.
   }
 }

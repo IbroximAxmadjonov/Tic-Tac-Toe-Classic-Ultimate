@@ -1,30 +1,50 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:tic_tac_toe/data/data_base/app_database.dart';
 import 'package:tic_tac_toe/main.dart';
+import 'package:tic_tac_toe/service_locator.dart';
+
+class _FakeHydratedStorage implements HydratedStorage {
+  final Map<String, dynamic> _data = {};
+
+  @override
+  dynamic read(String key) => _data[key];
+
+  @override
+  Future<void> write(String key, dynamic value) async {
+    _data[key] = value;
+  }
+
+  @override
+  Future<void> delete(String key) async {
+    _data.remove(key);
+  }
+
+  @override
+  Future<void> clear() async {
+    _data.clear();
+  }
+
+  @override
+  Future<void> close() async {}
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() async {
+    HydratedBloc.storage = _FakeHydratedStorage();
+    if (!sl.isRegistered<AppDatabase>()) {
+      await initDependencies();
+    }
+  });
+
+  testWidgets('Application smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(const Application());
-
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(Application), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(milliseconds: 500));
   });
 }

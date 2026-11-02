@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class GridSectionCard extends StatelessWidget {
+class SectionCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final Widget child;
 
-  const GridSectionCard({
+  const SectionCard({
     super.key,
     required this.title,
     required this.icon,

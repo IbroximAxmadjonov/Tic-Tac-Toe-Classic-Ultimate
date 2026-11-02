@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:tic_tac_toe/domain/constants/enums.dart';
 
-import '../../../domain/entities/player_entity.dart';
-import '../../../utils/theme_extension.dart';
+import '../../domain/entities/player_entity.dart';
+import '../../utils/theme_extension.dart';
 
-class SelectPlayerMainWidget extends StatelessWidget {
-  const SelectPlayerMainWidget({
+class SelectPlayerWidget extends StatelessWidget {
+  const SelectPlayerWidget({
     super.key,
     required this.players,
     this.player,
@@ -148,7 +148,9 @@ class SelectPlayerMainWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    playerSymbol == PlayerSymbol.x ? 'Player 1 (X)' : 'Player 2 (O)',
+                    playerSymbol == PlayerSymbol.x
+                        ? 'Player 1 (X)'
+                        : 'Player 2 (O)',
                     style: context.textTheme.labelMedium?.copyWith(
                       color: context.colorScheme.onSurfaceVariant,
                     ),

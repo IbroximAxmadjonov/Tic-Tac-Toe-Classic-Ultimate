@@ -1,6 +1,6 @@
 import 'package:go_router/go_router.dart';
 
-import '../../presentation/pages/main/grid_page.dart';
+import '../../presentation/pages/home/home_page.dart';
 import '../../presentation/pages/history/history_page.dart';
 import '../../presentation/pages/settings/settings_page.dart';
 import '../../presentation/pages/statics/statics_page.dart';
@@ -70,7 +70,7 @@ class AppRouter {
               GoRoute(
                 name: RouteName.home,
                 path: RoutePath.home,
-                builder: (context, state) => const GridPage(),
+                builder: (context, state) => const HomePage(),
               ),
             ],
           ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../domain/constants/enums.dart';
-import '../../widgets/main/grid_section_card.dart';
+import '../../domain/constants/enums.dart';
+import 'widgets.dart';
 
 // ============================================================================
 // BLOC INTEGRATION NOTES (TODO: connect with Bloc)
@@ -32,7 +32,7 @@ class SavingGameWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridSectionCard(
+    return SectionCard(
       icon: Icons.bookmark_border_rounded,
       title: 'Save Game',
       child: Row(
@@ -102,7 +102,9 @@ class _SaveGameTile extends StatelessWidget {
             color: isSelected ? colorScheme.primary : colorScheme.surface,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isSelected ? colorScheme.primary : colorScheme.outlineVariant,
+              color: isSelected
+                  ? colorScheme.primary
+                  : colorScheme.outlineVariant,
               width: isSelected ? 1.6 : 1,
             ),
             boxShadow: isSelected
@@ -131,7 +133,9 @@ class _SaveGameTile extends StatelessWidget {
                     label,
                     maxLines: 1,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                       color: isSelected
                           ? colorScheme.onPrimary
                           : colorScheme.onSurface,

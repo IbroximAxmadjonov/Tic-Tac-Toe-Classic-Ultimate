@@ -3,7 +3,6 @@ part of 'app_theme.dart';
 abstract final class AppTextTheme {
   static TextTheme buildTextTheme(Color color) {
     return TextTheme(
-
       /// Display
       displayLarge: TextStyle(fontSize: 48.sp, fontWeight: FontWeight.w600),
       // displayMedium: TextStyle(fontSize:, fontWeight:),

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:tic_tac_toe/presentation/widgets/main/grid_tile_widget.dart';
+import 'package:tic_tac_toe/generated/slang/slang.g.dart';
 
-import '../../../domain/constants/enums.dart';
-import 'grid_section_card.dart';
+import '../../domain/constants/enums.dart';
+import 'widgets.dart';
 
-class GridModeSelector extends StatelessWidget {
+class ModeSelectorWidget extends StatelessWidget {
   final GameMode selectedMode;
   final ValueChanged<GameMode> onModeChanged;
 
-  const GridModeSelector({
+  const ModeSelectorWidget({
     super.key,
     required this.selectedMode,
     required this.onModeChanged,
@@ -16,15 +16,15 @@ class GridModeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridSectionCard(
+    return SectionCard(
       icon: Icons.tune_rounded,
-      title: 'Select Mode',
+      title: context.t.settings.select_mode,
       child: Column(
         children: [
           Row(
             children: [
               Expanded(
-                child: GridTileWidget(
+                child: TileWidget(
                   value: GameMode.classic,
                   title: 'Classic',
                   isSelected: selectedMode == GameMode.classic,
@@ -35,7 +35,7 @@ class GridModeSelector extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: GridTileWidget(
+                child: TileWidget(
                   value: GameMode.ultimate,
                   title: 'Ultimate',
                   isSelected: selectedMode == GameMode.ultimate,
@@ -50,7 +50,7 @@ class GridModeSelector extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: GridTileWidget(
+                child: TileWidget(
                   value: GameMode.expanded,
                   title: 'Expanded',
                   isSelected: selectedMode == GameMode.expanded,
@@ -61,7 +61,7 @@ class GridModeSelector extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: GridTileWidget(
+                child: TileWidget(
                   value: GameMode.threeInARow,
                   title: 'Three in a row',
                   isSelected: selectedMode == GameMode.threeInARow,

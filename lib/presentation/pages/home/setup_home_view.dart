@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tic_tac_toe/presentation/widgets/main/create_player_main_widget.dart';
 
 import '../../../domain/constants/enums.dart';
-import '../../manager/main_bloc/main_bloc.dart';
-import '../../widgets/main/saving_game_widget.dart';
-import '../../widgets/main/select_player_main_widget.dart';
-import '../../widgets/main/widgets.dart';
+import '../../manager/home_bloc/home_bloc.dart';
+import '../../widgets/widgets.dart';
 
-class MainInitialView extends StatelessWidget {
-  const MainInitialView({super.key, required this.state});
+class SetupHomeView extends StatelessWidget {
+  const SetupHomeView({super.key, required this.state});
 
-  final MainInitialState state;
+  final HomeSetupState state;
 
   /// Валидация перед запуском игры.
   bool _canStart() {
@@ -29,8 +26,8 @@ class MainInitialView extends StatelessWidget {
       return;
     }
 
-    context.read<MainBloc>().add(
-      StartGameMainEvent(
+    context.read<HomeBloc>().add(
+      StartGameHomeEvent(
         gameMode: state.gameMode,
         selectedSize: state.selectedSize,
         saveGame: state.saveGame,
@@ -50,26 +47,26 @@ class MainInitialView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const GridHeaderTitle(),
+              const HomeHeaderTitleWidget(),
               const SizedBox(height: 20),
 
               // ── Select Mode ──────────────────────────────────────────────
-              GridModeSelector(
+              ModeSelectorWidget(
                 selectedMode: state.gameMode,
                 onModeChanged: (mode) {
-                  context.read<MainBloc>().add(
-                    ChangeMainInitialElementsMainEvent(object: mode),
+                  context.read<HomeBloc>().add(
+                    ChangeGameModeHomeEvent(gameMode: mode),
                   );
                 },
               ),
-              GridSizeSelector(
+              GridSizeSelectorWidget(
                 isVisible:
                     state.gameMode == GameMode.expanded ||
                     state.gameMode == GameMode.threeInARow,
                 selectedSize: state.selectedSize,
                 onSizeChanged: (size) {
-                  context.read<MainBloc>().add(
-                    ChangeMainInitialElementsMainEvent(object: size),
+                  context.read<HomeBloc>().add(
+                    ChangeSelectedSizeHomeEvent(selectedSize: size),
                   );
                 },
               ),
@@ -79,8 +76,8 @@ class MainInitialView extends StatelessWidget {
               SavingGameWidget(
                 selectedSaveGame: state.saveGame,
                 onSaveGameChanged: (saveGame) {
-                  context.read<MainBloc>().add(
-                    ChangeMainInitialElementsMainEvent(object: saveGame),
+                  context.read<HomeBloc>().add(
+                    ChangeSaveGameHomeEvent(saveGame: saveGame),
                   );
                 },
               ),
@@ -93,51 +90,51 @@ class MainInitialView extends StatelessWidget {
                     : CrossFadeState.showSecond,
                 firstChild: Padding(
                   padding: const EdgeInsets.only(top: 20.0),
-                  child: GridSectionCard(
+                  child: SectionCard(
                     icon: Icons.group_rounded,
                     title: 'Players',
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // ── Player 1 (X) ─────────────────────────────────
-                        SelectPlayerMainWidget(
+                        SelectPlayerWidget(
                           players: state.players,
                           player: state.selectedPlayerX,
                           otherPlayer: state.selectedPlayerO,
                           playerSymbol: PlayerSymbol.x,
                           onPlayerSelected: (player) {
-                            context.read<MainBloc>().add(
-                              AddPlayerToMainEvent(
+                            context.read<HomeBloc>().add(
+                              AddPlayerToHomeEvent(
                                 playerSymbol: PlayerSymbol.x,
                                 player: player,
                               ),
                             );
                           },
                           onPlayerCleared: () {
-                            context.read<MainBloc>().add(
-                              ClearPlayerMainEvent(playerSymbol: PlayerSymbol.x),
+                            context.read<HomeBloc>().add(
+                              ClearPlayerHomeEvent(playerSymbol: PlayerSymbol.x),
                             );
                           },
                         ),
                         const SizedBox(height: 10),
 
                         // ── Player 2 (O) ─────────────────────────────────
-                        SelectPlayerMainWidget(
+                        SelectPlayerWidget(
                           players: state.players,
                           player: state.selectedPlayerO,
                           otherPlayer: state.selectedPlayerX,
                           playerSymbol: PlayerSymbol.o,
                           onPlayerSelected: (player) {
-                            context.read<MainBloc>().add(
-                              AddPlayerToMainEvent(
+                            context.read<HomeBloc>().add(
+                              AddPlayerToHomeEvent(
                                 playerSymbol: PlayerSymbol.o,
                                 player: player,
                               ),
                             );
                           },
                           onPlayerCleared: () {
-                            context.read<MainBloc>().add(
-                              ClearPlayerMainEvent(playerSymbol: PlayerSymbol.o),
+                            context.read<HomeBloc>().add(
+                              ClearPlayerHomeEvent(playerSymbol: PlayerSymbol.o),
                             );
                           },
                         ),
@@ -145,7 +142,7 @@ class MainInitialView extends StatelessWidget {
                         const Divider(),
                         const SizedBox(height: 10),
                         // ── Create a new player ──────────────────────────
-                        CreatePlayerMainWidget(),
+                        CreatePlayerWidget(),
                       ],
                     ),
                   ),
@@ -156,7 +153,7 @@ class MainInitialView extends StatelessWidget {
               const SizedBox(height: 20),
 
               // ── Start Button ─────────────────────────────────────────────
-              GridStartButton(onPressed: () => _onStartPressed(context)),
+              StartButton(onPressed: () => _onStartPressed(context)),
 
               const SizedBox(height: 20),
             ],

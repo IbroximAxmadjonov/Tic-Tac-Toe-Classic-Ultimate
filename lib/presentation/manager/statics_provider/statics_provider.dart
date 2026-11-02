@@ -5,7 +5,7 @@ class StaticsProvider extends ChangeNotifier {
   List<PlayerEntity> _players = [];
   List<PlayerEntity> get players => _players;
 
-  void getAllPlayers(List<PlayerEntity> players){
+  void getAllPlayers(List<PlayerEntity> players) {
     _players = players;
     notifyListeners();
   }

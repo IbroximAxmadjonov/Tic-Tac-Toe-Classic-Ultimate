@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class GridHeaderTitle extends StatelessWidget {
-  const GridHeaderTitle({super.key});
+class HomeHeaderTitleWidget extends StatelessWidget {
+  const HomeHeaderTitleWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

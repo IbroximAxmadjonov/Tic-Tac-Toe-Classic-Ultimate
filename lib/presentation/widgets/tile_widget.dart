@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class GridTileWidget extends StatelessWidget {
+class TileWidget extends StatelessWidget {
   final Object value;
   final String title;
   final IconData? icon;
   final bool isSelected;
   final ValueChanged<Object> onSelected;
 
-  const GridTileWidget({
+  const TileWidget({
     super.key,
     required this.value,
     required this.title,
@@ -37,7 +37,9 @@ class GridTileWidget extends StatelessWidget {
             color: isSelected ? colorScheme.primary : colorScheme.surface,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isSelected ? colorScheme.primary : colorScheme.outlineVariant,
+              color: isSelected
+                  ? colorScheme.primary
+                  : colorScheme.outlineVariant,
               width: isSelected ? 1.6 : 1,
             ),
             boxShadow: isSelected
@@ -58,7 +60,9 @@ class GridTileWidget extends StatelessWidget {
                 Icon(
                   icon,
                   size: 20,
-                  color: isSelected ? colorScheme.onPrimary : colorScheme.primary,
+                  color: isSelected
+                      ? colorScheme.onPrimary
+                      : colorScheme.primary,
                 ),
                 const SizedBox(width: 8),
               ],
@@ -69,7 +73,9 @@ class GridTileWidget extends StatelessWidget {
                     title,
                     maxLines: 1,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
                       color: isSelected
                           ? colorScheme.onPrimary
                           : colorScheme.onSurface,

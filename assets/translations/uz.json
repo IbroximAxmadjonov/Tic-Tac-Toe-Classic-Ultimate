@@ -1,0 +1,33 @@
+{
+  "player": "O'yinchi",
+  "start": "Boshlash",
+  "restart": "Qayta boshlash",
+  "mode": "Rejim",
+  "settings": {
+    "title": "Sozlamalar",
+    "select_mode": "Rejimni tanlang",
+    "selected_size": "Tanlangan o'lcham",
+    "language": "Til",
+    "theme": {
+      "title": "Mavzu",
+      "system": "Avto",
+      "light": "Yorug'",
+      "dark": "Qorong'i"
+    },
+    "audio": {
+      "title": "Ovoz va tebranish",
+      "sound": {
+        "title": "Ovoz effektlari",
+        "subtitle": "Yurish va g'alaba tovushlari"
+      },
+      "vibration": {
+        "title": "Tebranish",
+        "subtitle": "Bosganda tebranish signali"
+      }
+    },
+    "about": {
+      "title": "O'yin haqida",
+      "version": "Versiya 1.0.0"
+    }
+  }
+}
