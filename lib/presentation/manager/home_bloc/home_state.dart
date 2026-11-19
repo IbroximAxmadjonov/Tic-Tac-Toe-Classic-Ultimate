@@ -8,10 +8,7 @@ class HomeInitialState extends HomeState {
 }
 
 class HomeSetupState extends HomeState {
-  final List<PlayerEntity> players;
-  final List<PlayerPairEntity> playerPairs;
-  final List<GameSessionEntity> selectedPairSessions;
-  final PlayerEntity? lastFetchedPlayer;
+  final List<PlayerEntity> playersList;
   final PlayerEntity? selectedPlayerX;
   final PlayerEntity? selectedPlayerO;
   final GameMode gameMode;
@@ -19,10 +16,7 @@ class HomeSetupState extends HomeState {
   final SaveGame saveGame;
 
   HomeSetupState({
-    required this.players,
-    this.playerPairs = const [],
-    this.selectedPairSessions = const [],
-    this.lastFetchedPlayer,
+    required this.playersList,
     this.selectedPlayerX,
     this.selectedPlayerO,
     required this.gameMode,
@@ -32,10 +26,7 @@ class HomeSetupState extends HomeState {
 
   @override
   List<Object?> get props => [
-    players,
-    playerPairs,
-    selectedPairSessions,
-    lastFetchedPlayer,
+    playersList,
     selectedPlayerX,
     selectedPlayerO,
     gameMode,
@@ -44,10 +35,7 @@ class HomeSetupState extends HomeState {
   ];
 
   HomeSetupState copyWith({
-    List<PlayerEntity>? players,
-    List<PlayerPairEntity>? playerPairs,
-    List<GameSessionEntity>? selectedPairSessions,
-    PlayerEntity? lastFetchedPlayer,
+    List<PlayerEntity>? playersList,
     PlayerEntity? selectedPlayerX,
     bool clearPlayerX = false,
     PlayerEntity? selectedPlayerO,
@@ -57,10 +45,7 @@ class HomeSetupState extends HomeState {
     SaveGame? saveGame,
   }) {
     return HomeSetupState(
-      players: players ?? this.players,
-      playerPairs: playerPairs ?? this.playerPairs,
-      selectedPairSessions: selectedPairSessions ?? this.selectedPairSessions,
-      lastFetchedPlayer: lastFetchedPlayer ?? this.lastFetchedPlayer,
+      playersList: playersList ?? this.playersList,
       selectedPlayerX: clearPlayerX
           ? null
           : (selectedPlayerX ?? this.selectedPlayerX),

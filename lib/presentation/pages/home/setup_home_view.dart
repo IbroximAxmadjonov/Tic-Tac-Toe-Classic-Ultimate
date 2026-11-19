@@ -31,7 +31,6 @@ class SetupHomeView extends StatelessWidget {
         gameMode: state.gameMode,
         selectedSize: state.selectedSize,
         saveGame: state.saveGame,
-        // При saveGame == no передаём дефолтных гостевых игроков.
         playerX: state.selectedPlayerX,
         playerO: state.selectedPlayerO,
       ),
@@ -98,7 +97,7 @@ class SetupHomeView extends StatelessWidget {
                       children: [
                         // ── Player 1 (X) ─────────────────────────────────
                         SelectPlayerWidget(
-                          players: state.players,
+                          players: state.playersList,
                           player: state.selectedPlayerX,
                           otherPlayer: state.selectedPlayerO,
                           playerSymbol: PlayerSymbol.x,
@@ -112,7 +111,9 @@ class SetupHomeView extends StatelessWidget {
                           },
                           onPlayerCleared: () {
                             context.read<HomeBloc>().add(
-                              ClearPlayerHomeEvent(playerSymbol: PlayerSymbol.x),
+                              ClearPlayerHomeEvent(
+                                playerSymbol: PlayerSymbol.x,
+                              ),
                             );
                           },
                         ),
@@ -120,7 +121,7 @@ class SetupHomeView extends StatelessWidget {
 
                         // ── Player 2 (O) ─────────────────────────────────
                         SelectPlayerWidget(
-                          players: state.players,
+                          players: state.playersList,
                           player: state.selectedPlayerO,
                           otherPlayer: state.selectedPlayerX,
                           playerSymbol: PlayerSymbol.o,
@@ -134,7 +135,9 @@ class SetupHomeView extends StatelessWidget {
                           },
                           onPlayerCleared: () {
                             context.read<HomeBloc>().add(
-                              ClearPlayerHomeEvent(playerSymbol: PlayerSymbol.o),
+                              ClearPlayerHomeEvent(
+                                playerSymbol: PlayerSymbol.o,
+                              ),
                             );
                           },
                         ),
@@ -142,7 +145,13 @@ class SetupHomeView extends StatelessWidget {
                         const Divider(),
                         const SizedBox(height: 10),
                         // ── Create a new player ──────────────────────────
-                        CreatePlayerWidget(),
+                        CreatePlayerWidget(
+                          onPlayerCreated: (name) {
+                            context.read<HomeBloc>().add(
+                              CreatePlayerHomeEvent(name: name),
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),

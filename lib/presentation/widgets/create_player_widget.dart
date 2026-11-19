@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../utils/theme_extension.dart';
-import '../manager/home_bloc/home_bloc.dart';
 
 class CreatePlayerWidget extends StatelessWidget {
-  CreatePlayerWidget({super.key});
+  CreatePlayerWidget({super.key, required this.onPlayerCreated});
 
   final TextEditingController _newPlayerController = TextEditingController();
+  final Function(String) onPlayerCreated;
 
   void _onCreatePlayer(BuildContext context) {
     final name = _newPlayerController.text.trim();
@@ -17,7 +16,8 @@ class CreatePlayerWidget extends StatelessWidget {
       ).showSnackBar(const SnackBar(content: Text('Enter a player name.')));
       return;
     }
-    context.read<HomeBloc>().add(CreatePlayerHomeEvent(name: name));
+    // context.read<HomeBloc>().add(CreatePlayerHomeEvent(name: name));
+    onPlayerCreated(name);
     _newPlayerController.clear();
     // Убираем фокус с поля ввода.
     FocusScope.of(context).unfocus();
@@ -59,10 +59,7 @@ class CreatePlayerWidget extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: context.colorScheme.primary,
-                width: 1.6,
-              ),
+              borderSide: BorderSide(color: context.colorScheme.primary, width: 1.6),
             ),
           ),
         ),

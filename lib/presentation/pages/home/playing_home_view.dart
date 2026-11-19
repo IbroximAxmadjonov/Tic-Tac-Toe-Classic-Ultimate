@@ -67,6 +67,14 @@ class PlayingHomeView extends StatelessWidget {
               child: BigGridWidget(
                 gridItems: state.gridItems,
                 permissionBigGridItems: gameState.permissibleBigGrid,
+                onTapped: (indexOfBigGrid, indexOfSmallGrid) {
+                  context.read<HomeBloc>().add(
+                    TappedOnHomeEvent(
+                      indexOfBigGrid: indexOfBigGrid,
+                      indexOfSmallGrid: indexOfSmallGrid,
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(height: 20),
@@ -114,10 +122,7 @@ class PlayingHomeView extends StatelessWidget {
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
-                  side: BorderSide(
-                    color: colorScheme.outlineVariant,
-                    width: 1.2,
-                  ),
+                  side: BorderSide(color: colorScheme.outlineVariant, width: 1.2),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),

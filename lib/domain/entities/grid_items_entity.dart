@@ -1,3 +1,5 @@
+import '../constants/enums.dart';
+
 class GridItemsEntity {
   final List<String> bigGridItems;
   final int bigGridCrossAxisCount;
@@ -16,6 +18,59 @@ class GridItemsEntity {
     required this.smallGridWinLength,
   });
 
+  factory GridItemsEntity.classic() {
+    return GridItemsEntity(
+      bigGridItems: List.filled(1, ''),
+      bigGridCrossAxisCount: 1,
+      bigGridWinLength: 1,
+      smallGridItems: [List.filled(9, '')],
+      smallGridCrossAxisCount: 3,
+      smallGridWinLength: 3,
+    );
+  }
+
+  factory GridItemsEntity.ultimate() {
+    return GridItemsEntity(
+      bigGridItems: List.filled(9, ''),
+      bigGridCrossAxisCount: 3,
+      bigGridWinLength: 3,
+      smallGridItems: List.filled(9, List.filled(9, '')),
+      smallGridCrossAxisCount: 3,
+      smallGridWinLength: 3,
+    );
+  }
+
+  factory GridItemsEntity.expanded(int size) {
+    return GridItemsEntity(
+      bigGridItems: List.filled(1, ''),
+      bigGridCrossAxisCount: 1,
+      bigGridWinLength: 1,
+      smallGridItems: [List.filled(size * size, '')],
+      smallGridCrossAxisCount: size,
+      smallGridWinLength: size,
+    );
+  }
+
+  factory GridItemsEntity.threeInARow(int size) {
+    return GridItemsEntity(
+      bigGridItems: List.filled(1, ''),
+      bigGridCrossAxisCount: 1,
+      bigGridWinLength: 1,
+      smallGridItems: [List.filled(size * size, '')],
+      smallGridCrossAxisCount: size,
+      smallGridWinLength: 3,
+    );
+  }
+
+  factory GridItemsEntity.byMode({required GameMode mode, required int size}) {
+    return switch (mode) {
+      GameMode.classic => GridItemsEntity.classic(),
+      GameMode.ultimate => GridItemsEntity.ultimate(),
+      GameMode.expanded => GridItemsEntity.expanded(size),
+      GameMode.threeInARow => GridItemsEntity.threeInARow(size),
+    };
+  }
+
   GridItemsEntity copyWith({
     List<String>? bigGridItems,
     int? bigGridCrossAxisCount,
@@ -29,8 +84,7 @@ class GridItemsEntity {
       bigGridItems: bigGridItems != null
           ? List<String>.from(bigGridItems)
           : this.bigGridItems,
-      bigGridCrossAxisCount:
-          bigGridCrossAxisCount ?? this.bigGridCrossAxisCount,
+      bigGridCrossAxisCount: bigGridCrossAxisCount ?? this.bigGridCrossAxisCount,
       bigGridWinLength: bigGridWinLength ?? this.bigGridWinLength,
 
       // ГЛУБОКАЯ КОПИЯ: клонируем внешний список и каждый вложенный список

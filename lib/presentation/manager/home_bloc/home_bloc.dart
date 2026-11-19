@@ -5,14 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../domain/constants/enums.dart';
 import '../../../domain/constants/test_elements.dart';
-import '../../../domain/entities/game_session_entity.dart';
 import '../../../domain/entities/game_state_entity.dart';
 import '../../../domain/entities/grid_items_entity.dart';
 import '../../../domain/entities/player_entity.dart';
-import '../../../domain/entities/player_pair_entity.dart';
 import '../../../domain/handlers/check_grid_winner_handler.dart';
 import '../../../domain/repositories/main_repository.dart';
-import '../../../service_locator.dart';
 import '../../../utils/errors/app_debug_print.dart';
 import '../setting_bloc/setting_bloc.dart';
 import '../statics_provider/statics_provider.dart';
@@ -22,24 +19,23 @@ part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  final CheckGridWinnerHandler _checkGridWinner = CheckGridWinnerHandler();
-  final MainRepository mainRepository;
-  final SettingBloc settingBloc;
+  static const CheckGridWinnerHandler _checkGridWinner = CheckGridWinnerHandler();
+  final MainRepository _mainRepository;
+  final SettingBloc _settingBloc;
+  final StaticsProvider _staticsProvider;
   late final StreamSubscription<SettingState> _settingSubscription;
 
-  HomeBloc({required this.mainRepository, required this.settingBloc})
-    : super(HomeInitialState()) {
+  HomeBloc({
+    required this._mainRepository,
+    required this._settingBloc,
+    required this._staticsProvider,
+  }) : super(HomeInitialState()) {
     on<LoadHomeEvent>(_onLoadHomeEvent);
     on<ChangeGameModeHomeEvent>(_onChangeGameModeHomeEvent);
     on<ChangeSelectedSizeHomeEvent>(_onChangeSelectedSizeHomeEvent);
     on<ChangeSaveGameHomeEvent>(_onChangeSaveGameHomeEvent);
     on<AddPlayerToHomeEvent>(_onAddPlayerToHomeEvent);
     on<CreatePlayerHomeEvent>(_onCreatePlayerHomeEvent);
-    on<RenamePlayerHomeEvent>(_onRenamePlayerHomeEvent);
-    on<DeletePlayerHomeEvent>(_onDeletePlayerHomeEvent);
-    on<GetPlayerHomeEvent>(_onGetPlayerHomeEvent);
-    on<LoadPlayerPairsHomeEvent>(_onLoadPlayerPairsHomeEvent);
-    on<LoadSessionsForPairHomeEvent>(_onLoadSessionsForPairHomeEvent);
     on<ClearPlayerHomeEvent>(_onClearPlayerHomeEvent);
     on<StartGameHomeEvent>(_onStartGameHomeEvent);
     on<TappedOnHomeEvent>(_onTappedOnHomeEvent);
@@ -47,7 +43,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     on<ExitGameHomeEvent>(_onExitGameHomeEvent);
     on<FinishAndRestartGameHomeEvent>(_onFinishAndRestartGameHomeEvent);
     on<FinishAndExitGameHomeEvent>(_onFinishAndExitGameHomeEvent);
-    _settingSubscription = settingBloc.stream.listen((state) {
+    _settingSubscription = _settingBloc.stream.listen((state) {
       add(ChangeGameModeHomeEvent(gameMode: state.gameMode));
       add(ChangeSelectedSizeHomeEvent(selectedSize: state.selectedSize));
       add(ChangeSaveGameHomeEvent(saveGame: state.saveGame));
@@ -61,13 +57,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     Emitter<HomeState> emit,
   ) async {
     if (state is! HomeInitialState) return;
-    final playerList = await mainRepository.getPlayersByRanking();
-    sl<StaticsProvider>().getAllPlayers(playerList);
+    final playerList = await _mainRepository.getPlayersByRanking();
+    _staticsProvider.getAllPlayers(playerList);
     emit(
       HomeSetupState(
-        players: playerList,
-        gameMode: settingBloc.state.gameMode,
-        selectedSize: settingBloc.state.selectedSize,
+        playersList: playerList,
+        gameMode: _settingBloc.state.gameMode,
+        selectedSize: _settingBloc.state.selectedSize,
       ),
     );
   }
@@ -125,9 +121,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     if (state is! HomeSetupState) return;
     final currentState = state as HomeSetupState;
-    event.playerSymbol == PlayerSymbol.x
-        ? emit(currentState.copyWith(selectedPlayerX: event.player))
-        : emit(currentState.copyWith(selectedPlayerO: event.player));
+    if (event.playerSymbol == PlayerSymbol.x) {
+      emit(currentState.copyWith(selectedPlayerX: event.player));
+    } else {
+      emit(currentState.copyWith(selectedPlayerO: event.player));
+    }
     appDebugPrint(
       e: currentState.toString(),
       stackTrace: StackTrace.fromString(''),
@@ -148,98 +146,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
     final currentState = state as HomeSetupState;
     // Сохраняем игрока в БД.
-    await mainRepository.createPlayer(event.name);
+    await _mainRepository.createPlayer(event.name);
     // Перезагружаем обновлённый список из БД.
-    final updatedPlayers = await mainRepository.getPlayersByRanking();
-    emit(currentState.copyWith(players: updatedPlayers));
-    sl<StaticsProvider>().getAllPlayers(updatedPlayers);
-  }
-
-  // Задача _onRenamePlayerMainEvent — переименовать игрока в БД
-  FutureOr<void> _onRenamePlayerHomeEvent(
-    RenamePlayerHomeEvent event,
-    Emitter<HomeState> emit,
-  ) async {
-    await mainRepository.renamePlayer(
-      playerId: event.playerId,
-      newName: event.newName,
-    );
-    final updatedPlayers = await mainRepository.getPlayersByRanking();
-    sl<StaticsProvider>().getAllPlayers(updatedPlayers);
-    if (state is HomeSetupState) {
-      final currentState = state as HomeSetupState;
-      final updatedPlayerX = currentState.selectedPlayerX?.id == event.playerId
-          ? currentState.selectedPlayerX?.copyWith(name: event.newName.trim())
-          : currentState.selectedPlayerX;
-      final updatedPlayerO = currentState.selectedPlayerO?.id == event.playerId
-          ? currentState.selectedPlayerO?.copyWith(name: event.newName.trim())
-          : currentState.selectedPlayerO;
-      emit(
-        currentState.copyWith(
-          players: updatedPlayers,
-          selectedPlayerX: updatedPlayerX,
-          selectedPlayerO: updatedPlayerO,
-        ),
-      );
-    }
-  }
-
-  // Задача _onDeletePlayerMainEvent — удалить игрока из БД
-  FutureOr<void> _onDeletePlayerHomeEvent(
-    DeletePlayerHomeEvent event,
-    Emitter<HomeState> emit,
-  ) async {
-    await mainRepository.deletePlayer(event.playerId);
-    final updatedPlayers = await mainRepository.getPlayersByRanking();
-    final updatedPairs = await mainRepository.getPlayerPairs();
-    sl<StaticsProvider>().getAllPlayers(updatedPlayers);
-    if (state is HomeSetupState) {
-      final currentState = state as HomeSetupState;
-      emit(
-        currentState.copyWith(
-          players: updatedPlayers,
-          playerPairs: updatedPairs,
-          clearPlayerX: currentState.selectedPlayerX?.id == event.playerId,
-          clearPlayerO: currentState.selectedPlayerO?.id == event.playerId,
-        ),
-      );
-    }
-  }
-
-  // Задача _onGetPlayerMainEvent — получить игрока по ID
-  FutureOr<void> _onGetPlayerHomeEvent(
-    GetPlayerHomeEvent event,
-    Emitter<HomeState> emit,
-  ) async {
-    final player = await mainRepository.getPlayer(event.playerId);
-    if (state is HomeSetupState) {
-      final currentState = state as HomeSetupState;
-      emit(currentState.copyWith(lastFetchedPlayer: player));
-    }
-  }
-
-  // Задача _onLoadPlayerPairsMainEvent — загрузить пары игроков
-  FutureOr<void> _onLoadPlayerPairsHomeEvent(
-    LoadPlayerPairsHomeEvent event,
-    Emitter<HomeState> emit,
-  ) async {
-    final pairs = await mainRepository.getPlayerPairs();
-    if (state is HomeSetupState) {
-      final currentState = state as HomeSetupState;
-      emit(currentState.copyWith(playerPairs: pairs));
-    }
-  }
-
-  // Задача _onLoadSessionsForPairMainEvent — загрузить сессии конкретной пары
-  FutureOr<void> _onLoadSessionsForPairHomeEvent(
-    LoadSessionsForPairHomeEvent event,
-    Emitter<HomeState> emit,
-  ) async {
-    final sessions = await mainRepository.getSessionsForPair(event.pairId);
-    if (state is HomeSetupState) {
-      final currentState = state as HomeSetupState;
-      emit(currentState.copyWith(selectedPairSessions: sessions));
-    }
+    final updatedPlayers = await _mainRepository.getPlayersByRanking();
+    emit(currentState.copyWith(playersList: updatedPlayers));
+    _staticsProvider.getAllPlayers(updatedPlayers);
   }
 
   // Задача _onClearPlayerMainEvent — очистить выбранного игрока
@@ -249,9 +160,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     if (state is! HomeSetupState) return;
     final currentState = state as HomeSetupState;
-    event.playerSymbol == PlayerSymbol.x
-        ? emit(currentState.copyWith(clearPlayerX: true))
-        : emit(currentState.copyWith(clearPlayerO: true));
+    if (event.playerSymbol == PlayerSymbol.x) {
+      emit(currentState.copyWith(clearPlayerX: true));
+    } else {
+      emit(currentState.copyWith(clearPlayerO: true));
+    }
   }
 
   // Задача _onStartGameMainEvent — собрать данные и начать игру
@@ -259,73 +172,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     StartGameHomeEvent event,
     Emitter<HomeState> emit,
   ) async {
-    final GridItemsEntity startGridItems;
-
-    switch (event.gameMode) {
-      case GameMode.classic:
-        startGridItems = GridItemsEntity(
-          bigGridItems: List.generate(1, (index) => ''),
-          bigGridCrossAxisCount: 1,
-          bigGridWinLength: 1,
-          smallGridItems: List.generate(
-            1,
-            (index) => List.generate(9, (index) => ''),
-          ),
-          smallGridCrossAxisCount: 3,
-          smallGridWinLength: 3,
-        );
-        break;
-
-      case GameMode.ultimate:
-        startGridItems = GridItemsEntity(
-          bigGridItems: List.generate(9, (index) => ''),
-          bigGridCrossAxisCount: 3,
-          bigGridWinLength: 3,
-          smallGridItems: List.generate(
-            9,
-            (index) => List.generate(9, (index) => ''),
-          ),
-          smallGridCrossAxisCount: 3,
-          smallGridWinLength: 3,
-        );
-        break;
-
-      case GameMode.expanded:
-        final n = event.selectedSize;
-        startGridItems = GridItemsEntity(
-          bigGridItems: List.generate(1, (index) => ''),
-          bigGridCrossAxisCount: 1,
-          bigGridWinLength: 1,
-          smallGridItems: List.generate(
-            1,
-            (index) => List.generate(n * n, (index) => ''),
-          ),
-          smallGridCrossAxisCount: n,
-          smallGridWinLength: n,
-        );
-        break;
-
-      case GameMode.threeInARow:
-        final n = event.selectedSize;
-        startGridItems = GridItemsEntity(
-          bigGridItems: List.generate(1, (index) => ''),
-          bigGridCrossAxisCount: 1,
-          bigGridWinLength: 1,
-          smallGridItems: List.generate(
-            1,
-            (index) => List.generate(n * n, (index) => ''),
-          ),
-          smallGridCrossAxisCount: n,
-          smallGridWinLength: 3,
-        );
-        break;
-    }
-
+    final startGridItems = GridItemsEntity.byMode(
+      mode: event.gameMode,
+      size: event.selectedSize,
+    );
     final startGameState = GameStateEntity(
       gameMode: event.gameMode,
-      permissibleBigGrid: List.generate(
+      permissibleBigGrid: List.filled(
         startGridItems.bigGridItems.length,
-        (index) => Permission.permissible,
+        Permission.permissible,
       ),
       saveGame: event.saveGame,
     );
@@ -334,26 +189,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       HomePlayingState(
         gridItems: startGridItems,
         gameState: startGameState,
-        playerX:
-            event.playerX ??
-            PlayerEntity(
-              id: 0,
-              name: 'Player X',
-              games: 0,
-              wins: 0,
-              losses: 0,
-              draws: 0,
-            ),
-        playerO:
-            event.playerO ??
-            PlayerEntity(
-              id: 0,
-              name: 'Player O',
-              games: 0,
-              wins: 0,
-              losses: 0,
-              draws: 0,
-            ),
+        playerX: event.playerX ?? PlayerEntity.mockPlayerX(),
+        playerO: event.playerO ?? PlayerEntity.mockPlayerO(),
       ),
     );
   }
@@ -408,8 +245,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
     final newBigGridItems = List<String>.from(gridItems.bigGridItems);
 
-    final newPermissibleBigGrid = List<Permission>.from(
-      gameState.permissibleBigGrid,
+    final newPermissibleBigGrid = List<Permission>.filled(
+      gridItems.bigGridItems.length,
+      Permission.notPermissible,
     );
 
     // Размещаем символ текущего игрока.
@@ -428,11 +266,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     } else if (newSmallGridItems[indexBig].every((cell) => cell.isNotEmpty)) {
       // Маленькая сетка заполнена, но победителя нет.
       newBigGridItems[indexBig] = 'draw';
-    }
-
-    // Очищаем первичные разрешения
-    for (int i = 0; i < newPermissibleBigGrid.length; i++) {
-      newPermissibleBigGrid[i] = Permission.notPermissible;
     }
 
     /// Если целевая большая сетка уже завершена,
@@ -471,14 +304,23 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       winLength: winBigLength,
     );
 
-    if (bigWinner == PlayerSymbol.x.name || bigWinner == PlayerSymbol.o.name) {
+    if (bigWinner == PlayerSymbol.x.name) {
       emit(
         HomeFinishedState(
           gameState: updatedGameState,
           gameGridItems: updatedGridItems,
-          winnerPlayer: bigWinner == PlayerSymbol.x.name
-              ? currentState.playerX
-              : currentState.playerO,
+          winnerPlayer: currentState.playerX,
+          playerX: currentState.playerX,
+          playerO: currentState.playerO,
+        ),
+      );
+      return;
+    } else if (bigWinner == PlayerSymbol.o.name) {
+      emit(
+        HomeFinishedState(
+          gameState: updatedGameState,
+          gameGridItems: updatedGridItems,
+          winnerPlayer: currentState.playerO,
           playerX: currentState.playerX,
           playerO: currentState.playerO,
         ),
@@ -528,23 +370,16 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     } else {
       return;
     }
-
-    final cellsPerSmallGrid = gridItems.smallGridItems.isNotEmpty
-        ? gridItems.smallGridItems[0].length
-        : (gridItems.smallGridCrossAxisCount * gridItems.smallGridCrossAxisCount);
-    final updatedGridItems = gridItems.copyWith(
-      bigGridItems: List.generate(gridItems.bigGridItems.length, (_) => ''),
-      smallGridItems: List.generate(
-        gridItems.bigGridItems.length,
-        (_) => List.generate(cellsPerSmallGrid, (_) => ''),
-      ),
+    final updatedGridItems = GridItemsEntity.byMode(
+      mode: gameState.gameMode,
+      size: gridItems.smallGridCrossAxisCount,
     );
     final updatedGameState = gameState.copyWith(
       currentSymbol: PlayerSymbol.x,
       moveCount: 0,
-      permissibleBigGrid: List.generate(
+      permissibleBigGrid: List.filled(
         gridItems.bigGridItems.length,
-        (_) => Permission.permissible,
+        Permission.permissible,
       ),
     );
 
@@ -565,14 +400,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     if (state is! HomePlayingState) return;
     final currentState = state as HomePlayingState;
-    final players = await mainRepository.getPlayersByRanking();
-    final pairs = await mainRepository.getPlayerPairs();
-    sl<StaticsProvider>().getAllPlayers(players);
-
+    final players = await _mainRepository.getPlayersByRanking();
+    _staticsProvider.getAllPlayers(players);
     emit(
       HomeSetupState(
-        players: players,
-        playerPairs: pairs,
+        playersList: players,
         selectedPlayerX: currentState.playerX,
         selectedPlayerO: currentState.playerO,
         gameMode: currentState.gameState.gameMode,
@@ -589,33 +421,28 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     if (state is! HomeFinishedState) return;
     final currentState = state as HomeFinishedState;
     if (currentState.gameState.saveGame == SaveGame.yes) {
-      await mainRepository.recordFinishedGame(
+      await _mainRepository.recordFinishedGame(
         playerXId: currentState.playerX.id,
         playerOId: currentState.playerO.id,
         winnerPlayerId: currentState.winnerPlayer?.id,
         mode: currentState.gameState.gameMode,
       );
-      final updatedPlayers = await mainRepository.getPlayersByRanking();
-      sl<StaticsProvider>().getAllPlayers(updatedPlayers);
+      final updatedPlayers = await _mainRepository.getPlayersByRanking();
+      _staticsProvider.getAllPlayers(updatedPlayers);
     }
 
     final gridItems = currentState.gameGridItems;
-    final cellsPerSmallGrid = gridItems.smallGridItems.isNotEmpty
-        ? gridItems.smallGridItems[0].length
-        : (gridItems.smallGridCrossAxisCount * gridItems.smallGridCrossAxisCount);
-    final updatedGridItems = gridItems.copyWith(
-      bigGridItems: List.generate(gridItems.bigGridItems.length, (_) => ''),
-      smallGridItems: List.generate(
-        gridItems.bigGridItems.length,
-        (_) => List.generate(cellsPerSmallGrid, (_) => ''),
-      ),
+    final gameState = currentState.gameState;
+    final updatedGridItems = GridItemsEntity.byMode(
+      mode: gameState.gameMode,
+      size: gridItems.smallGridCrossAxisCount,
     );
-    final updatedGameState = currentState.gameState.copyWith(
+    final updatedGameState = gameState.copyWith(
       currentSymbol: PlayerSymbol.x,
       moveCount: 0,
-      permissibleBigGrid: List.generate(
+      permissibleBigGrid: List.filled(
         gridItems.bigGridItems.length,
-        (_) => Permission.permissible,
+        Permission.permissible,
       ),
     );
 
@@ -636,21 +463,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     if (state is! HomeFinishedState) return;
     final currentState = state as HomeFinishedState;
     if (currentState.gameState.saveGame == SaveGame.yes) {
-      await mainRepository.recordFinishedGame(
+      await _mainRepository.recordFinishedGame(
         playerXId: currentState.playerX.id,
         playerOId: currentState.playerO.id,
         winnerPlayerId: currentState.winnerPlayer?.id,
         mode: currentState.gameState.gameMode,
       );
     }
-    final updatedPlayers = await mainRepository.getPlayersByRanking();
-    final updatedPairs = await mainRepository.getPlayerPairs();
-    sl<StaticsProvider>().getAllPlayers(updatedPlayers);
+    final updatedPlayers = await _mainRepository.getPlayersByRanking();
+    _staticsProvider.getAllPlayers(updatedPlayers);
 
     emit(
       HomeSetupState(
-        players: updatedPlayers,
-        playerPairs: updatedPairs,
+        playersList: updatedPlayers,
         selectedPlayerX: currentState.playerX,
         selectedPlayerO: currentState.playerO,
         gameMode: currentState.gameState.gameMode,

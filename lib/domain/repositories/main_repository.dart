@@ -1,10 +1,7 @@
 import 'package:drift/drift.dart';
-import 'package:tic_tac_toe/domain/entities/game_session_entity.dart';
-import 'package:tic_tac_toe/domain/entities/player_entity.dart';
-import 'package:tic_tac_toe/domain/entities/player_pair_entity.dart';
-
 import '../../data/data_base/app_database.dart';
 import '../constants/enums.dart';
+import '../entities/entities.dart';
 
 class MainRepository {
   MainRepository({required this.db});

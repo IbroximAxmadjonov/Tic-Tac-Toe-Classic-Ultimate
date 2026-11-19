@@ -1,5 +1,3 @@
-import 'package:shared_preferences/shared_preferences.dart';
-
 class PlayerEntity {
   final int id;
   final String name;
@@ -34,18 +32,26 @@ class PlayerEntity {
       draws: draws ?? this.draws,
     );
   }
-}
 
-Future<String> noPlayerNameWithCounter() async {
-  final pref = await SharedPreferences.getInstance();
-  final count = pref.getInt('noNameCounter') ?? 1;
-  await pref.setInt('noNameCounter', count + 1);
-  return 'Player $count';
-}
+  factory PlayerEntity.mockPlayerX() {
+    return PlayerEntity(
+      id: 0,
+      name: 'Player X',
+      games: 0,
+      wins: 0,
+      losses: 0,
+      draws: 0,
+    );
+  }
 
-Future<String> noSessionNameWithCounter() async {
-  final pref = await SharedPreferences.getInstance();
-  final count = pref.getInt('noSessionCounter') ?? 1;
-  await pref.setInt('noSessionCounter', count + 1);
-  return 'Session $count';
+  factory PlayerEntity.mockPlayerO() {
+    return PlayerEntity(
+      id: 0,
+      name: 'Player O',
+      games: 0,
+      wins: 0,
+      losses: 0,
+      draws: 0,
+    );
+  }
 }

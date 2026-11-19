@@ -56,53 +56,6 @@ class CreatePlayerHomeEvent extends HomeEvent {
   List<Object?> get props => [name];
 }
 
-/// Переименовывает игрока в БД и обновляет список.
-class RenamePlayerHomeEvent extends HomeEvent {
-  final int playerId;
-  final String newName;
-
-  RenamePlayerHomeEvent({required this.playerId, required this.newName});
-
-  @override
-  List<Object?> get props => [playerId, newName];
-}
-
-/// Удаляет игрока из БД и обновляет список.
-class DeletePlayerHomeEvent extends HomeEvent {
-  final int playerId;
-
-  DeletePlayerHomeEvent({required this.playerId});
-
-  @override
-  List<Object?> get props => [playerId];
-}
-
-/// Получает конкретного игрока по ID.
-class GetPlayerHomeEvent extends HomeEvent {
-  final int playerId;
-
-  GetPlayerHomeEvent({required this.playerId});
-
-  @override
-  List<Object?> get props => [playerId];
-}
-
-/// Загружает список пар игроков и их статистику.
-class LoadPlayerPairsHomeEvent extends HomeEvent {
-  @override
-  List<Object?> get props => [];
-}
-
-/// Загружает историю сессий конкретной пары игроков.
-class LoadSessionsForPairHomeEvent extends HomeEvent {
-  final int pairId;
-
-  LoadSessionsForPairHomeEvent({required this.pairId});
-
-  @override
-  List<Object?> get props => [pairId];
-}
-
 /// Очищает выбранного игрока в слоте 1 (playerSymbol == PlayerSymbol.x) или 2 (playerSymbol == PlayerSymbol.o).
 class ClearPlayerHomeEvent extends HomeEvent {
   final PlayerSymbol playerSymbol;
@@ -113,6 +66,7 @@ class ClearPlayerHomeEvent extends HomeEvent {
   List<Object?> get props => [playerSymbol];
 }
 
+/// Начинает игру.
 class StartGameHomeEvent extends HomeEvent {
   final GameMode gameMode;
   final int selectedSize;

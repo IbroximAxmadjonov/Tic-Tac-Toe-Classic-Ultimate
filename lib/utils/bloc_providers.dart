@@ -4,17 +4,17 @@ import 'package:provider/single_child_widget.dart';
 
 import '../../service_locator.dart';
 import '../presentation/manager/home_bloc/home_bloc.dart';
+import '../presentation/manager/players_bloc/players_bloc.dart';
 import '../presentation/manager/setting_bloc/setting_bloc.dart';
 import '../presentation/manager/statics_provider/statics_provider.dart';
-import '../presentation/manager/theme_bloc/theme_bloc.dart';
 
 final class AppBlocProviders {
   static List<SingleChildWidget> get items => [
-    BlocProvider<ThemeBloc>(create: (context) => sl<ThemeBloc>()),
     BlocProvider<SettingBloc>(create: (context) => sl<SettingBloc>()),
     BlocProvider<HomeBloc>(
       create: (context) => sl<HomeBloc>()..add(LoadHomeEvent()),
     ),
     ChangeNotifierProvider(create: (context) => sl<StaticsProvider>()),
+    BlocProvider(create: (context) => sl<PlayersBloc>()),
   ];
 }

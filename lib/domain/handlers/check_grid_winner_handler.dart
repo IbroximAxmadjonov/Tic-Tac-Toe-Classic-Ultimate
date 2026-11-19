@@ -1,5 +1,7 @@
 class CheckGridWinnerHandler {
-  String call({
+  const CheckGridWinnerHandler();
+
+  static String call({
     required List<String> grid,
     required int size,
     required int winLength,

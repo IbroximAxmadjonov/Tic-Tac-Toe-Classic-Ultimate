@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/constants/enums.dart';
 import '../../domain/entities/grid_items_entity.dart';
-import '../manager/home_bloc/home_bloc.dart';
 
 class BigGridWidget extends StatelessWidget {
   final GridItemsEntity gridItems;
   final List<Permission> permissionBigGridItems;
+  final Function(int indexOfBigGrid, int indexOfSmallGrid) onTapped;
 
   const BigGridWidget({
     super.key,
     required this.gridItems,
     required this.permissionBigGridItems,
+    required this.onTapped,
   });
 
   @override
@@ -30,15 +30,14 @@ class BigGridWidget extends StatelessWidget {
           crossAxisCount: gridItems.smallGridCrossAxisCount,
           indexOfBigGrid: indexOfBigGrid,
           symbol: gridItems.smallGridItems[indexOfBigGrid],
+          onTapped: onTapped,
         );
 
         return Container(
           padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
             border: Border.all(
-              color:
-                  permissionBigGridItems[indexOfBigGrid] ==
-                      Permission.permissible
+              color: permissionBigGridItems[indexOfBigGrid] == Permission.permissible
                   ? Colors.green
                   : Colors.transparent,
             ),
@@ -71,12 +70,14 @@ class SmallGridWidget extends StatelessWidget {
     required this.crossAxisCount,
     required this.indexOfBigGrid,
     required this.symbol,
+    required this.onTapped,
   });
 
   final int itemCount;
   final int crossAxisCount;
   final int indexOfBigGrid;
   final List<String> symbol;
+  final Function(int indexOfBigGrid, int indexOfSmallGrid) onTapped;
 
   @override
   Widget build(BuildContext context) {
@@ -90,12 +91,7 @@ class SmallGridWidget extends StatelessWidget {
       itemBuilder: (context, indexOfSmallGrid) {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => context.read<HomeBloc>().add(
-            TappedOnHomeEvent(
-              indexOfBigGrid: indexOfBigGrid,
-              indexOfSmallGrid: indexOfSmallGrid,
-            ),
-          ),
+          onTap: () => onTapped(indexOfBigGrid, indexOfSmallGrid),
           child: Container(
             decoration: BoxDecoration(border: Border.all(color: Colors.red)),
             alignment: Alignment.center,
